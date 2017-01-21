@@ -11,6 +11,7 @@ import de.tfr.game.lib.Logger
  * @author Tobse4Git@gmail.com
  */
 open class GamePad : ControllerListener {
+    var noiseReduction = 0.1
 
     init {
         Controllers.addListener(this)
@@ -37,7 +38,28 @@ open class GamePad : ControllerListener {
     }
 
     override fun axisMoved(controller: Controller, axisCode: Int, value: Float): Boolean {
-        return true
+
+        //println("axisMoved = axisCode: " + axisCode + ": " + value)
+        if (value > noiseReduction || value < -noiseReduction) {
+            if // Left Stick
+                    (axisCode == XBox360Pad.AXIS_LEFT_X || axisCode == XBox360Pad.AXIS_LEFT_Y) {
+                leftStickMoved(controller.getAxis(XBox360Pad.AXIS_LEFT_X), controller.getAxis(XBox360Pad.AXIS_LEFT_Y))
+            } else if // Right stick
+                           (axisCode == XBox360Pad.AXIS_RIGHT_X || axisCode == XBox360Pad.AXIS_RIGHT_Y) {
+                rightStickMoved(controller.getAxis(XBox360Pad.AXIS_RIGHT_X), controller.getAxis(XBox360Pad.AXIS_RIGHT_Y))
+            }
+        } else {
+            //   println("noise: axisMoved = axisCode: " + axisCode + ": " + value)
+        }
+        return false
+    }
+
+    open fun leftStickMoved(valueX: Float, valueY: Float) {
+        println("leftStickMoved: " + valueX + " " + valueY)
+    }
+
+    open fun rightStickMoved(valueX: Float, valueY: Float) {
+
     }
 
     override fun disconnected(controller: Controller) {

@@ -14,8 +14,6 @@ import de.tfr.game.model.Block
 import de.tfr.game.model.GameField
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
-import de.tfr.game.ui.BLACK
-import de.tfr.game.ui.GRAY_DARK
 import de.tfr.game.ui.GREEN_LIGHT
 
 
@@ -131,9 +129,9 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
             Stone.Color.Undefined -> renderer.color = Colors.emptyField
         }
         when {
-            stone == null -> renderer.color = Colors.emptyField
-            stone.state == Stone.State.Active -> renderer.color = BLACK
-            stone.state == Stone.State.Set -> renderer.color = GRAY_DARK
+        /* stone == null -> renderer.color = Colors.emptyField
+         stone.state == Stone.State.Active -> renderer.color = BLACK
+         stone.state == Stone.State.Set -> renderer.color = GRAY_DARK*/
         }
         renderer.circle(x, y, radius)
         //renderBlock(block, stone, x, y + distance, degree)

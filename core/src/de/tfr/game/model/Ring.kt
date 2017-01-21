@@ -8,11 +8,11 @@ import java.util.*
  */
 class Ring(val gameField: GameField, val index: Int) : Iterable<Block> {
 
-    private val SIDES = 12
+    private val segments = 12
 
     override fun iterator() = blocks.iterator()
 
-    private var blocks: Array<Block> = Array(SIDES, { segment -> Block(this, index, segment) })
+    private var blocks: Array<Block> = Array(segments, { segment -> Block(this, index, segment) })
 
     operator fun get(orientation: Orientation) = blocks[orientation.ordinal]
     operator fun get(segment: Int) = blocks[segment]
@@ -21,9 +21,9 @@ class Ring(val gameField: GameField, val index: Int) : Iterable<Block> {
 
     fun getTakenCount() = blocks.filter { it.isTaken() }.count()
 
-    fun size() = SIDES
+    fun size() = segments
 
-    fun isFull() = getTakenCount() == SIDES
+    fun isFull() = getTakenCount() == segments
 
     fun freeSides(): List<Orientation> {
         return emptyList();

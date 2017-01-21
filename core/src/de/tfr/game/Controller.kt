@@ -28,12 +28,13 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
 
     private val touchListeners: MutableCollection<ControlListener> = ArrayList()
 
-    enum class Control {Blue, Red, Yellow, Green, Esc, Action, Pause }
+    enum class Control {Up, Down, Left, Right, Blue, Red, Yellow, Green, Esc, Action, Pause }
     private class Button(centerX: Float, centerY: Float, radius: Float) : Rectangle(centerX - radius, centerY - radius, radius * 2, radius * 2)
     class TouchArea(val control: Control, val rect: Rectangle)
 
     interface ControlListener {
         fun controlEvent(control: Control)
+        fun controlEventSetSegment(segment: Int)
     }
 
     class TouchPoint(inputIndex: Int) : Vector2(input.getX(inputIndex).toFloat(), input.getY(inputIndex).toFloat())

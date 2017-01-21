@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import de.tfr.game.controller.GamepadControl
+import de.tfr.game.controller.GamePadController
 import de.tfr.game.lib.actor.Box2D
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.GameField
@@ -38,8 +38,8 @@ class HotClack : ApplicationAdapter() {
     private lateinit var display: Display
     private lateinit var displayRenderer: DisplayRenderer
     private lateinit var controllerRenderer: ControllerRenderer
-    private lateinit var game: BoxGame
-    private lateinit var gamepad: GamepadControl
+    private lateinit var game: SimpleInfiniteGame
+    private lateinit var gamepad: GamePadController
 
     private val gameField = GameField(13)
     private val resolution = Resolution(1400f, 1400f)
@@ -51,7 +51,7 @@ class HotClack : ApplicationAdapter() {
     override fun create() {
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
-        game = BoxGame(gameField)
+        game = SimpleInfiniteGame(gameField)
         camera = OrthographicCamera(resolution)
         camera.setToOrtho(false)
 
@@ -66,7 +66,7 @@ class HotClack : ApplicationAdapter() {
 
         displayRenderer.init()
         controllerRenderer = ControllerRenderer(camera)
-        gamepad = GamepadControl(game)
+        gamepad = GamePadController(gameField.segments(), game)
     }
 
     override fun render() {

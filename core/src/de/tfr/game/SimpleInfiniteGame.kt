@@ -10,7 +10,14 @@ import de.tfr.game.util.Timer
 /**
  * @author Tobse4Git@gmail.com
  */
-class BoxGame(val field: GameField) : Controller.ControlListener {
+class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
+
+    override fun controlEventSetSegment(segment: Int) {
+        if (segment < field.segments()) {
+            val next = field[active.block.row][segment]
+            active.block = next
+        }
+    }
 
     private var active: Stone
     private var activeRing: Ring? = null
@@ -26,16 +33,42 @@ class BoxGame(val field: GameField) : Controller.ControlListener {
 
     private fun doStep() {
         timer.actionTime = fallingSpeed
-        move(active)
+        // move(active)
     }
 
     override fun controlEvent(control: Controller.Control) {
         when (control) {
         // active.block.orientation.toControl() -> setStone()
+            Controller.Control.Blue -> setColor(Stone.Color.Blue)
+            Controller.Control.Red -> setColor(Stone.Color.Red)
+            Controller.Control.Yellow -> setColor(Stone.Color.Yellow)
+            Controller.Control.Green -> setColor(Stone.Color.Green)
+            Controller.Control.Up -> moveUp()
+            Controller.Control.Down -> moveDown()
             Controller.Control.Action -> setStone(active)
             Controller.Control.Esc -> reset()
             Controller.Control.Pause -> timer.togglePause()
         }
+    }
+
+    private fun moveUp() {
+        val nextRow = active.block.row - 1
+        if (nextRow >= 0) {
+            val next = field[nextRow][active.block.segment]
+            active.block = next
+        }
+    }
+
+    private fun moveDown() {
+        val nextRow = active.block.row + 1
+        if (nextRow < field.size) {
+            val next = field[nextRow][active.block.segment]
+            active.block = next
+        }
+    }
+
+    fun setColor(color: Stone.Color) {
+        active.color = color
     }
 
 

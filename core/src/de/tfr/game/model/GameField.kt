@@ -15,4 +15,6 @@ class GameField(val size: Int) : Iterable<Ring> {
 
     fun reset() = rings.forEach(Ring::reset)
 
+    fun segments() = rings[0].size()
+
 }

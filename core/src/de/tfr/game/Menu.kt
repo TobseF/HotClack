@@ -4,6 +4,9 @@ package de.tfr.game
  * @author Tobse4Git@gmail.com
  */
 class Menu : Controller.ControlListener {
+    override fun controlEventSetSegment(segment: Int) {
+
+    }
 
     enum class Game {BoxGame, BlockGame }
 
