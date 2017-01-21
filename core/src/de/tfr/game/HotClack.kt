@@ -41,8 +41,8 @@ class HotClack : ApplicationAdapter() {
     private lateinit var game: BoxGame
     private lateinit var gamepad: GamepadControl
 
-    private val gameField = GameField(10)
-    private val resolution = Resolution(800f, 1400f)
+    private val gameField = GameField(13)
+    private val resolution = Resolution(1400f, 1400f)
     lateinit var batch: SpriteBatch
     private lateinit var stage: Stage
     private lateinit var shapeRenderer: ShapeRenderer
@@ -72,7 +72,7 @@ class HotClack : ApplicationAdapter() {
     override fun render() {
         clear()
         camera.update()
-        controllerRenderer.render(controller)
+        // controllerRenderer.render(controller)
         renderField()
         game.update(graphics.deltaTime)
         displayRenderer.render()
@@ -93,7 +93,7 @@ class HotClack : ApplicationAdapter() {
     private fun clear(color: Color) {
         Gdx.gl.glClearColor(color)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        //   renderGameBackground()
+        renderGameBackground()
     }
 
     private fun renderGameBackground() {

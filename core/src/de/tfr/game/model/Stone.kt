@@ -5,7 +5,10 @@ package de.tfr.game.model
  */
 class Stone(private val initBlock: Block) {
 
-    enum class State {Active, Set }
+    enum class Color {Green, Blue, Red, Yellow, Undefined }
+    enum class State {Wall, Incoming, Active, Set }
+
+    var color = Color.Undefined
 
     var state = State.Active
 

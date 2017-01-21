@@ -50,10 +50,10 @@ class ControllerRenderer(val camera: Camera) {
         }
 
 
-        draw(button(red, Control.Left), controller.left)
-        draw(button(blue, Control.Right), controller.right)
-        draw(button(yellow, Control.Bottom), controller.bottom)
-        draw(button(green, Control.Top), controller.top)
+        draw(button(red, Control.Blue), controller.left)
+        draw(button(blue, Control.Red), controller.right)
+        draw(button(yellow, Control.Green), controller.bottom)
+        draw(button(green, Control.Yellow), controller.top)
 
         batch.end()
     }

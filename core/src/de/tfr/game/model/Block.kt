@@ -3,7 +3,7 @@ package de.tfr.game.model
 /**
  * @author Tobse4Git@gmail.com
  */
-class Block(val row: Int, val orientation: Orientation) {
+class Block(val ring: Ring, val row: Int, val segment: Int) {
     var stone: Stone? = null
 
     fun isEmpty(): Boolean {
@@ -14,7 +14,7 @@ class Block(val row: Int, val orientation: Orientation) {
         return !isEmpty()
     }
 
-    override fun toString() = "Block [$row ${orientation.char()} $stone]"
+    override fun toString() = "Block [$row ${ring.index} $stone]"
 
     fun reset() {
         stone = null

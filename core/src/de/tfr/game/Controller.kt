@@ -28,7 +28,7 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
 
     private val touchListeners: MutableCollection<ControlListener> = ArrayList()
 
-    enum class Control {Left, Right, Top, Bottom, Esc, Action, Pause }
+    enum class Control {Blue, Red, Yellow, Green, Esc, Action, Pause }
     private class Button(centerX: Float, centerY: Float, radius: Float) : Rectangle(centerX - radius, centerY - radius, radius * 2, radius * 2)
     class TouchArea(val control: Control, val rect: Rectangle)
 
@@ -42,10 +42,10 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
         val touchPointers = getTouchPointers()
         fun touches(touchArea: TouchArea) = touchPointers.any(touchArea.rect::contains)
         when (control) {
-            Left -> return input.isKeyPressed(Keys.LEFT) || touches(left)
-            Right -> return input.isKeyPressed(Keys.RIGHT) || touches(right)
-            Top -> return input.isKeyPressed(Keys.UP) || touches(top)
-            Bottom -> return input.isKeyPressed(Keys.DOWN) || touches(bottom)
+            Blue -> return input.isKeyPressed(Keys.LEFT) || touches(left)
+            Red -> return input.isKeyPressed(Keys.RIGHT) || touches(right)
+            Yellow -> return input.isKeyPressed(Keys.UP) || touches(top)
+            Green -> return input.isKeyPressed(Keys.DOWN) || touches(bottom)
         }
         return false
     }
@@ -53,10 +53,10 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
     private fun getTouchPointers() = (0..6).filter(input::isTouched).map { viewport.unproject(TouchPoint(it)) }.filter { !it.isZero }
 
     init {
-        left = TouchArea(Left, Button(x - gameRadius - distance, y, radius))
-        right = TouchArea(Right, Button(x + gameRadius + distance, y, radius))
-        top = TouchArea(Top, Button(x, y + gameRadius + distance, radius))
-        bottom = TouchArea(Bottom, Button(x, y - gameRadius - distance, radius))
+        left = TouchArea(Blue, Button(x - gameRadius - distance, y, radius))
+        right = TouchArea(Red, Button(x + gameRadius + distance, y, radius))
+        top = TouchArea(Yellow, Button(x, y + gameRadius + distance, radius))
+        bottom = TouchArea(Green, Button(x, y - gameRadius - distance, radius))
         input.inputProcessor = this
         input.isCatchBackKey = true
     }
@@ -77,10 +77,10 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
     override fun keyDown(keycode: Int): Boolean {
         fun toControl(keycode: Int) =
                 when (keycode) {
-                    Keys.RIGHT -> Right
-                    Keys.UP -> Top
-                    Keys.DOWN -> Bottom
-                    Keys.LEFT -> Left
+                    Keys.RIGHT -> Red
+                    Keys.UP -> Yellow
+                    Keys.DOWN -> Green
+                    Keys.LEFT -> Blue
                     Keys.SPACE -> Action
                     Keys.P -> Pause
                     Keys.ESCAPE, Keys.BACK -> Esc

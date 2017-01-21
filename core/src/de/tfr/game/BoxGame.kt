@@ -31,20 +31,12 @@ class BoxGame(val field: GameField) : Controller.ControlListener {
 
     override fun controlEvent(control: Controller.Control) {
         when (control) {
-            active.block.orientation.toControl() -> setStone()
+        // active.block.orientation.toControl() -> setStone()
             Controller.Control.Action -> setStone(active)
             Controller.Control.Esc -> reset()
             Controller.Control.Pause -> timer.togglePause()
         }
     }
-
-    fun Orientation.toControl(): Controller.Control =
-            when (this) {
-                Orientation.Left -> Controller.Control.Left
-                Orientation.Right -> Controller.Control.Right
-                Orientation.Up -> Controller.Control.Top
-                Orientation.Down -> Controller.Control.Bottom
-            }
 
 
     fun getStones() = listOf(active)
@@ -67,14 +59,17 @@ class BoxGame(val field: GameField) : Controller.ControlListener {
         timer.actionTime = firstPause
     }
 
-    private fun randomFreeOrientation() = activeRing?.randomFreeSide() ?: Orientation.random()
+    private fun randomFreeOrientation(): Orientation {
+        //activeRing?.randomFreeSide() ?: Orientation.random()
+        return Orientation.Up
+    }
 
 
     private fun move(stone: Stone) {
         if (stone.isInLastRow()) {
             misstep()
         } else {
-            val next = field[active.block.row - 1][active.block.orientation]
+            val next = field[active.block.row - 1][active.block.segment]
             active.block = next
         }
     }

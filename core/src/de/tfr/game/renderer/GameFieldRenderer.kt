@@ -10,11 +10,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import de.tfr.game.lib.actor.Point
-import de.tfr.game.model.*
+import de.tfr.game.model.Block
+import de.tfr.game.model.GameField
+import de.tfr.game.model.Ring
+import de.tfr.game.model.Stone
 import de.tfr.game.ui.BLACK
 import de.tfr.game.ui.GRAY_DARK
 import de.tfr.game.ui.GREEN_LIGHT
-import de.tfr.game.ui.GREEN_LIGHT2
 
 
 /**
@@ -22,24 +24,44 @@ import de.tfr.game.ui.GREEN_LIGHT2
  */
 class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
 
-    private val gap = 6
-    private val blockWith = 18f
-    private val radius = 8f
+    private val gap = 14
+    private val blockWith = 36f
+    private val radius = 16f
     private val renderer = ShapeRenderer()
     private val spriteBatch = SpriteBatch()
+
+    class Colors {
+        companion object {
+            val emptyField = Color.CYAN
+            val stoneRed = Color.RED
+            val stoneBlue = Color.BLUE
+            val stoneYellow = Color.YELLOW
+            val stoneGreen = Color.GREEN
+
+            val activeStone = Color.CYAN
+            val setStone = Color.CYAN
+        }
+    }
+
     //private val background = Texture()
 
     fun start() {
+        val width = Gdx.graphics.width
+        val height = Gdx.graphics.height
+
+        //val frameBuffer = FrameBuffer(Pixmap.Format.RGB565, width, height, false);
+        // val frameRegion = TextureRegion(frameBuffer.getColorBufferTexture());
+        //  frameRegion.flip(false, true);
         renderer.projectionMatrix = camera.combined
         renderer.begin(Filled)
     }
 
     fun render(field: GameField) {
+
         renderBackground(field)
 
-        renderer.color = GREEN_LIGHT2
+        renderer.color = Colors.emptyField
         renderer.circle(x, y, radius)
-
         field.forEach(this::renderRing)
         // renderBorder()
     }
@@ -88,24 +110,49 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
 
     private fun renderBlock(block: Block, stone: Stone?) {
         val distance = gap + blockWith + (block.row * (gap + blockWith))
-        when (block.orientation) {
-            Orientation.Left -> renderBlock(block, stone, x - distance, y)
-            Orientation.Right -> renderBlock(block, stone, x + distance, y)
-            Orientation.Up -> renderBlock(block, stone, x, y + distance)
-            Orientation.Down -> renderBlock(block, stone, x, y - distance)
+        val singleRotation = (360 / 12).toFloat()
+
+        // renderer.arc(x,y,5f,distance,1*singleRotation,12)
+        renderBlock(block, block.segment * singleRotation, distance, stone)
+        for (i in 0..12) {
+            //renderBlock(block, i*singleRotation, distance, stone)
         }
     }
 
-    private fun renderBlock(block: Block, stone: Stone?, x: Float, y: Float) {
-        val length = ((block.row) * (blockWith * 2)) + ((2 * gap) * (block.row + 1))
-        val side = length / 2
-        val width = blockWith / 2
+    private fun renderBlock(block: Block, degree: Float, distance: Float, stone: Stone?) {
+        val x = this.x + (distance * Math.sin(Math.toRadians(degree.toDouble()))).toFloat()
+        val y = this.y + (distance * Math.cos(Math.toRadians(degree.toDouble()))).toFloat()
+        //arc (float x, float y, float radius, float start, float degrees, int segments) {
+        when (stone?.color) {
+            Stone.Color.Blue -> renderer.color = Colors.stoneBlue
+            Stone.Color.Green -> renderer.color = Colors.stoneGreen
+            Stone.Color.Yellow -> renderer.color = Colors.stoneYellow
+            Stone.Color.Red -> renderer.color = Colors.stoneRed
+            Stone.Color.Undefined -> renderer.color = Colors.emptyField
+        }
         when {
-            stone == null -> renderer.color = GREEN_LIGHT2
+            stone == null -> renderer.color = Colors.emptyField
             stone.state == Stone.State.Active -> renderer.color = BLACK
             stone.state == Stone.State.Set -> renderer.color = GRAY_DARK
         }
+        renderer.circle(x, y, radius)
+        //renderBlock(block, stone, x, y + distance, degree)
+    }
 
+
+    private fun renderBlock(block: Block, stone: Stone?, x: Float, y: Float, degree: Float) {
+        val lenghGrowth = 20f;
+        val length = lenghGrowth + (block.row * lenghGrowth)
+        val side = length / 2
+        val width = blockWith / 2
+        val smallSide = 5f
+
+
+        //(float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY,float degrees)
+        //renderer.rect( x - side, y - width, this.x, this.y,length, blockWith,1f,1f,degree)
+        renderer.rect(x - side, y - width, x - side, y - width, length, blockWith, 1f, 1f, degree)
+        renderer.rect(x - side, y - width, length, blockWith)
+        /*
         when (block.orientation) {
             Orientation.Left -> renderer.rect(x - width, y - side, blockWith, length)
             Orientation.Right -> renderer.rect(x - width, y - side, blockWith, length)
@@ -117,8 +164,8 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         fun renderTriangleLeftDown(x: Float, y: Float) = renderer.triangle(x, y, x, y - blockWith, x + blockWith, y)
         fun renderTriangleRightUp(x: Float, y: Float) = renderer.triangle(x, y, x + blockWith, y + blockWith, x + blockWith, y)
         fun renderTriangleRightDown(x: Float, y: Float) = renderer.triangle(x, y, x + blockWith, y - blockWith, x + blockWith, y)
-        fun renderTriangleUpLeft(x: Float, y: Float) = renderer.triangle(x, y, x, y + blockWith, x - blockWith, y + blockWith)
-        fun renderTriangleUpRight(x: Float, y: Float) = renderer.triangle(x, y, x, y + blockWith, x + blockWith, y + blockWith)
+        fun renderTriangleUpLeft(x: Float, y: Float) = renderer.triangle(x, y, x, y + blockWith, x - smallSide, y + blockWith)
+        fun renderTriangleUpRight(x: Float, y: Float) = renderer.triangle(x, y, x, y + blockWith, x + smallSide, y + blockWith)
         fun renderTriangleDownLeft(x: Float, y: Float) = renderer.triangle(x, y, x, y + blockWith, x - blockWith, y)
         fun renderTriangleDownRight(x: Float, y: Float) = renderer.triangle(x, y, x, y + blockWith, x + blockWith, y)
 
@@ -141,6 +188,7 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
             }
 
         }
+        */
     }
 
 }
