@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import de.tfr.game.lib.actor.Point
+import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.Block
 import de.tfr.game.model.GameField
 import de.tfr.game.model.Ring
@@ -24,7 +25,9 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
 
     private val gap = 14
     private val blockWith = 36f
-    private val radius = 16f
+    private val radius = 18f
+    private val radiusStoned = radius + 2
+    private val radiusPlayer = radiusStoned + 5
     private val renderer = ShapeRenderer()
     private val spriteBatch = SpriteBatch()
 
@@ -61,7 +64,17 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         renderer.color = Colors.emptyField
         renderer.circle(x, y, radius)
         field.forEach(this::renderRing)
+        renderPlayer(field.player)
         // renderBorder()
+    }
+
+    private fun renderPlayer(player: Stone) {
+        val playerPos = getPos(player.block)
+        renderer.color = Color.BLACK
+        renderer.circle(playerPos.x, playerPos.y, radiusPlayer + 4)
+        renderer.color = getRenderColor(player.color)
+        renderer.circle(playerPos.x, playerPos.y, radiusPlayer + 4)
+
     }
 
     fun renderBorder() {
@@ -106,34 +119,51 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         renderBlock(stone.block, stone)
     }
 
-    private fun renderBlock(block: Block, stone: Stone?) {
+    private fun getPos(block: Block): Point {
         val distance = gap + blockWith + (block.row * (gap + blockWith))
         val singleRotation = (360 / 12).toFloat()
+        val degree = block.segment * singleRotation
+        val x = this.x + (distance * Math.sin(Math.toRadians(degree.toDouble()))).toFloat()
+        val y = this.y + (distance * Math.cos(Math.toRadians(degree.toDouble()))).toFloat()
+        return Point2D(x, y)
+    }
+
+    fun getRenderColor(color: Stone.Color): Color {
+        when (color) {
+            Stone.Color.Blue -> return Colors.stoneBlue
+            Stone.Color.Green -> return Colors.stoneGreen
+            Stone.Color.Yellow -> return Colors.stoneYellow
+            Stone.Color.Red -> return Colors.stoneRed
+            Stone.Color.Undefined -> return Colors.emptyField
+        }
+    }
+
+    private fun renderBlock(block: Block, stone: Stone?) {
+        val renderPos = getPos(block)
+
+        if (stone != null) {
+            renderer.color = getRenderColor(stone.color)
+            renderer.circle(renderPos.x, renderPos.y, radiusStoned)
+        } else {
+            renderer.color = Colors.emptyField
+            renderer.circle(renderPos.x, renderPos.y, radius)
+        }
+
+        when {
+        /* stone == null -> renderer.color = Colors.emptyField
+         stone.state == Stone.State.Active -> renderer.color = BLACK
+         stone.state == Stone.State.Set -> renderer.color = GRAY_DARK*/
+        }
 
         // renderer.arc(x,y,5f,distance,1*singleRotation,12)
-        renderBlock(block, block.segment * singleRotation, distance, stone)
+        //  renderBlock(block, block.segment * singleRotation, distance, stone)
         for (i in 0..12) {
             //renderBlock(block, i*singleRotation, distance, stone)
         }
     }
 
     private fun renderBlock(block: Block, degree: Float, distance: Float, stone: Stone?) {
-        val x = this.x + (distance * Math.sin(Math.toRadians(degree.toDouble()))).toFloat()
-        val y = this.y + (distance * Math.cos(Math.toRadians(degree.toDouble()))).toFloat()
-        //arc (float x, float y, float radius, float start, float degrees, int segments) {
-        when (stone?.color) {
-            Stone.Color.Blue -> renderer.color = Colors.stoneBlue
-            Stone.Color.Green -> renderer.color = Colors.stoneGreen
-            Stone.Color.Yellow -> renderer.color = Colors.stoneYellow
-            Stone.Color.Red -> renderer.color = Colors.stoneRed
-            Stone.Color.Undefined -> renderer.color = Colors.emptyField
-        }
-        when {
-        /* stone == null -> renderer.color = Colors.emptyField
-         stone.state == Stone.State.Active -> renderer.color = BLACK
-         stone.state == Stone.State.Set -> renderer.color = GRAY_DARK*/
-        }
-        renderer.circle(x, y, radius)
+
         //renderBlock(block, stone, x, y + distance, degree)
     }
 

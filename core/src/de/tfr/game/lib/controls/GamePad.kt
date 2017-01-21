@@ -11,7 +11,7 @@ import de.tfr.game.lib.Logger
  * @author Tobse4Git@gmail.com
  */
 open class GamePad : ControllerListener {
-    var noiseReduction = 0.1
+    var noiseReduction = 0.4
 
     init {
         Controllers.addListener(this)

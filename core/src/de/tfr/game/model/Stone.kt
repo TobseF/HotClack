@@ -24,4 +24,11 @@ class Stone(private val initBlock: Block) {
     override fun toString(): String {
         return "Stone[$state]"
     }
+
+    fun clone(): Stone {
+        var copy = Stone(initBlock)
+        copy.color = this.color
+        copy.state = this.state
+        return copy
+    }
 }

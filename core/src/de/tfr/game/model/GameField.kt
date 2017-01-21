@@ -5,9 +5,15 @@ package de.tfr.game.model
  */
 class GameField(val size: Int) : Iterable<Ring> {
 
+    private var rings: Array<Ring> = Array(size, this::newRing)
+    val player: Stone
+
+    init {
+        player = Stone(this[0][0])
+    }
+
     override fun iterator() = rings.iterator()
 
-    private var rings: Array<Ring> = Array(size, this::newRing)
 
     private fun newRing(index: Int) = Ring(this, index)
 
