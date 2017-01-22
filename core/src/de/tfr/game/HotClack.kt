@@ -31,7 +31,7 @@ class HotClack : ApplicationAdapter() {
     private lateinit var renderer: GameFieldRenderer
     private lateinit var controller: Controller
     private lateinit var viewport: Viewport
-    private lateinit var display: TimeDisplay
+    private lateinit var watch: TimeDisplay
     private lateinit var displayRenderer: DisplayRenderer
     private lateinit var scoreRenderer: DisplayRenderer
     private lateinit var controllerRenderer: ControllerRenderer
@@ -49,7 +49,7 @@ class HotClack : ApplicationAdapter() {
     override fun create() {
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
-        game = SimpleInfiniteGame(gameField)
+        game = SimpleInfiniteGame(gameField, this::reset)
         camera = OrthographicCamera(resolution)
         camera.setToOrtho(false)
         val renderAccess = RenderAccess(camera)
@@ -60,8 +60,8 @@ class HotClack : ApplicationAdapter() {
         val gameFieldSize = renderer.getFieldSize(gameField)
         controller = Controller(center, gameFieldSize, viewport)
         controller.addTouchListener(game)
-        display = TimeDisplay()
-        displayRenderer = DisplayRenderer(Point2D(resolution.width - 200f, resolution.height + 50), display::getText, camera, SpriteBatch())
+        watch = TimeDisplay()
+        displayRenderer = DisplayRenderer(Point2D(resolution.width - 200f, resolution.height + 50), watch::getText, camera, SpriteBatch())
 
         displayRenderer.init()
         scoreRenderer = DisplayRenderer(Point2D(150f, resolution.height + 50), game.scoreCounter::getText, camera, SpriteBatch())
@@ -69,6 +69,10 @@ class HotClack : ApplicationAdapter() {
         controllerRenderer = ControllerRenderer(camera)
         gamepad = GamePadController(gameField.segments(), game)
         liveRenderer = LiveRenderer(Point2D(60f, resolution.height - 150), game::lives, newShapeRenderer(), camera)
+    }
+
+    fun reset() {
+        watch.reset()
     }
 
     fun newShapeRenderer(): ShapeRenderer {
@@ -80,7 +84,6 @@ class HotClack : ApplicationAdapter() {
     override fun render() {
         clear()
         camera.update()
-        // controllerRenderer.render(controller)
         renderField()
         game.update(graphics.deltaTime)
         displayRenderer.render()

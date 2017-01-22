@@ -9,7 +9,7 @@ import de.tfr.game.util.Timer
 /**
  * @author Tobse4Git@gmail.com
  */
-class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
+class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : Controller.ControlListener {
 
     private var player: Stone
     private var activeRing: Ring? = null
@@ -153,6 +153,7 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
         skyNet.reset()
         activeRing = null
         looseLive = null
+        resetListener.invoke()
     }
 
 

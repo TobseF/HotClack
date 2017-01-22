@@ -1,6 +1,5 @@
 package de.tfr.game
 
-import de.tfr.game.lib.actor.Box
 import de.tfr.game.util.StopWatch
 import de.tfr.game.util.TimerFormatter
 
@@ -13,4 +12,8 @@ class TimeDisplay {
     var formatter = TimerFormatter()
 
     fun getText() = formatter.getFormattedTimeAsString(watch.getTime())
+
+    fun reset() {
+        watch.reset()
+    }
 }
