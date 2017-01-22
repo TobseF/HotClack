@@ -78,7 +78,8 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
 
     fun setColor(color: Stone.Color) {
         player.color = color
-        dropStone()
+        skyNet.shoot(player.block.segment)
+        // dropStone()
     }
 
 
@@ -86,6 +87,7 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
 
     fun update(deltaTime: Float) {
         timer.update(deltaTime)
+        skyNet.update(deltaTime)
     }
 
     private fun reset() {

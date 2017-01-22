@@ -1,7 +1,5 @@
 package de.tfr.game
 
-import com.badlogic.gdx.math.MathUtils
-import de.tfr.game.lib.random
 import de.tfr.game.model.GameField
 
 /**
@@ -10,6 +8,8 @@ import de.tfr.game.model.GameField
 class EnemyAI(val field: GameField) {
 
     val enemies = mutableListOf<Enemy>()
+    val enemiesToRemove = mutableListOf<Enemy>()
+    val enemiesMap = HashMap<Int, Enemy>()
     val enemyRate = RandomStep(5)
 
     fun doStep() {
@@ -23,7 +23,8 @@ class EnemyAI(val field: GameField) {
     private fun spawnEnemy() {
         val nextSegment = nextSegment()
         if (nextSegment != null) {
-            var new = Enemy(field, nextSegment)
+            var new = Enemy(field, this, nextSegment)
+            enemiesMap.put(nextSegment, new)
             enemies += new
         }
     }
@@ -39,5 +40,32 @@ class EnemyAI(val field: GameField) {
     fun listFreeSegments() = (0..field.segments() - 1).filter { !listTakenSegments().contains(it) }.toList()
 
     fun nextSegment() = listFreeSegments().random()
+    fun shoot(segment: Int) {
+        val enemy = enemiesMap[segment]
+        if (enemy != null) {
+            shoot(enemy)
+        }
+    }
+
+    private fun shoot(enemy: Enemy) {
+        enemy.shoot()
+    }
+
+    fun remove(enemy: Enemy) {
+        enemiesToRemove += enemy
+
+    }
+
+    fun update(deltaTime: Float) {
+        enemies.forEach { it.update(deltaTime) }
+        val enemiesToRemoveIterator = enemiesToRemove.iterator();
+        while (enemiesToRemoveIterator.hasNext()) {
+            val kill = enemiesToRemoveIterator.next()
+            enemies.remove(kill)
+            enemiesMap.remove(kill.segment)
+            enemiesToRemoveIterator.remove()
+        }
+
+    }
 
 }
