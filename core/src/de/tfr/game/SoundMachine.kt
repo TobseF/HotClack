@@ -8,7 +8,7 @@ import com.badlogic.gdx.Gdx.files
  */
 class SoundMachine() {
 
-    private val enabled = false
+    private val enabled = true
 
     private val circle_ok = newSound("circle_ok.ogg")
     private val line_missed = newSound("line_missed.ogg")
@@ -22,7 +22,7 @@ class SoundMachine() {
         }
     }
 
-    fun playLineMissed() = {
+    fun playLineMissed() {
         if (enabled) {
             line_missed.play()
         }

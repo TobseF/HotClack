@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import de.tfr.game.Display
+import de.tfr.game.TimeDisplay
 import de.tfr.game.ui.GREEN_LIGHT
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class DisplayRenderer(val display: Display, val camera: Camera, val batch: SpriteBatch) {
+class DisplayRenderer(val display: TimeDisplay, val camera: Camera, val batch: SpriteBatch) {
     lateinit var font: BitmapFont
 
     lateinit var glyphLayout: GlyphLayout

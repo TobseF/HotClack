@@ -43,20 +43,15 @@ class EnemyAI(val field: GameField) {
 
     fun nextSegment() = listFreeSegments().random()
 
-    fun shoot(segment: Int) {
-        val enemy = enemiesMap[segment]
-        if (enemy != null) {
-            shoot(enemy)
-        }
-    }
 
-    private fun shoot(enemy: Enemy) {
+    fun getEnemy(segment: Int): Enemy? = enemiesMap[segment]
+
+    fun shoot(enemy: Enemy) {
         enemy.shoot()
     }
 
     fun remove(enemy: Enemy) {
         enemiesToRemove += enemy
-
     }
 
     fun update(deltaTime: Float) {

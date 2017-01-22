@@ -35,7 +35,7 @@ class HotClack : ApplicationAdapter() {
     private lateinit var renderer: GameFieldRenderer
     private lateinit var controller: Controller
     private lateinit var viewport: Viewport
-    private lateinit var display: Display
+    private lateinit var display: TimeDisplay
     private lateinit var displayRenderer: DisplayRenderer
     private lateinit var controllerRenderer: ControllerRenderer
     private lateinit var game: SimpleInfiniteGame
@@ -61,7 +61,7 @@ class HotClack : ApplicationAdapter() {
         val gameFieldSize = renderer.getFieldSize(gameField)
         controller = Controller(center, gameFieldSize, viewport)
         controller.addTouchListener(game)
-        display = Display(Box2D(Point2D(resolution.width - 200f, resolution.height + 50), 400f, -400f))
+        display = TimeDisplay(Box2D(Point2D(resolution.width - 200f, resolution.height + 50), 400f, -400f))
         displayRenderer = DisplayRenderer(display, camera, SpriteBatch())
 
         displayRenderer.init()
