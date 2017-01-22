@@ -52,16 +52,17 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
     }
 
     private fun renderEnemy(enemy: Enemy) {
+        var i = enemy.stones.size
+        var enemyGrow = 6f
         enemy.stones.forEach {
-            renderStone(it)
+            val renderPos = getPos(it.block)
+            renderer.color = getRenderColor(it)
+            renderer.circle(renderPos.x, renderPos.y, radiusStoned + (i * enemyGrow))
+            i--
         }
     }
-    //private val background = Texture()
 
     fun start() {
-        //val frameBuffer = FrameBuffer(Pixmap.Format.RGB565, width, height, false);
-        // val frameRegion = TextureRegion(frameBuffer.getColorBufferTexture());
-        //  frameRegion.flip(false, true);
         renderer.projectionMatrix = camera.combined
         renderer.begin(Filled)
     }
