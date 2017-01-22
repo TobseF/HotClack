@@ -7,7 +7,7 @@ import de.tfr.game.util.TimerFormatter
 /**
  * @author Tobse4Git@gmail.com
  */
-class TimeDisplay(box: Box) : Box by box {
+class TimeDisplay {
 
     var watch = StopWatch()
     var formatter = TimerFormatter()

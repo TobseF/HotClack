@@ -25,7 +25,7 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     private val incomingSpeedMax = 0.1f
     private val firstPause = 0.7f
     private val sounds = SoundMachine()
-    private val scoreCounter = ScoreCounter()
+    val scoreCounter = ScoreCounter()
 
     val skyNet: EnemyAI
 
@@ -86,8 +86,10 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
         if (enemy != null && enemy.color == player.color) {
             skyNet.shoot(enemy)
             sounds.playLineOK()
+            scoreCounter.score()
         } else {
             sounds.playLineMissed()
+            scoreCounter.unScore()
         }
     }
 

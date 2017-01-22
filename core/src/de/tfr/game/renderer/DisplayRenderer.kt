@@ -7,26 +7,21 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import de.tfr.game.TimeDisplay
+import de.tfr.game.lib.actor.Point
 import de.tfr.game.ui.GREEN_LIGHT
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class DisplayRenderer(val display: TimeDisplay, val camera: Camera, val batch: SpriteBatch) {
+class DisplayRenderer(val display: Point, val textProvider: () -> String, val camera: Camera, val batch: SpriteBatch) {
     lateinit var font: BitmapFont
 
     lateinit var glyphLayout: GlyphLayout
     private var renderer = ShapeRenderer()
-    var time = System.currentTimeMillis()
 
     fun init() {
         font = BitmapFont(Gdx.files.internal("fonts/segment7.fnt"))
-        glyphLayout = GlyphLayout(font, "00 00")
-    }
-
-    fun begin() {
-
+        glyphLayout = GlyphLayout(font, "0000")
     }
 
     fun render() {
@@ -36,35 +31,17 @@ class DisplayRenderer(val display: TimeDisplay, val camera: Camera, val batch: S
 
         renderer.color = GREEN_LIGHT
 
-        //renderer.rect(display.x - display.width / 2, display.y - 510, display.width, display.height)
         renderer.end()
 
         batch.projectionMatrix = camera.combined
         batch.begin()
-        glyphLayout.setText(font, "88:88")
+        glyphLayout.setText(font, "8888")
         font.color = Color.WHITE
         font.draw(batch, glyphLayout, display.x - (glyphLayout.width / 2), display.y - glyphLayout.height / 2)
-        glyphLayout.setText(font, display.getText())
+        glyphLayout.setText(font, textProvider.invoke())
         font.color = Color.DARK_GRAY
         font.draw(batch, glyphLayout, display.x - (glyphLayout.width / 2), display.y - glyphLayout.height / 2)
         batch.end()
-
-        end()
-        /*
-
-         renderer.color = GREEN_LIGHT2
-          renderer.setAutoShapeType(true)
-          renderer.begin()
-          renderer.set(ShapeRenderer.ShapeType.Filled)
-          renderer.rect(display.x, display.y, display.width, display.height)
-          renderer.end()
-          batch.end()
-          */
-    }
-
-    private fun end() {
-
-
     }
 
 

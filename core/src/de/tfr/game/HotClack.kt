@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import de.tfr.game.controller.GamePadController
-import de.tfr.game.lib.actor.Box2D
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.GameField
 import de.tfr.game.renderer.ControllerRenderer
@@ -37,7 +36,9 @@ class HotClack : ApplicationAdapter() {
     private lateinit var viewport: Viewport
     private lateinit var display: TimeDisplay
     private lateinit var displayRenderer: DisplayRenderer
+    private lateinit var scoreRenderer: DisplayRenderer
     private lateinit var controllerRenderer: ControllerRenderer
+
     private lateinit var game: SimpleInfiniteGame
     private lateinit var gamepad: GamePadController
 
@@ -61,10 +62,12 @@ class HotClack : ApplicationAdapter() {
         val gameFieldSize = renderer.getFieldSize(gameField)
         controller = Controller(center, gameFieldSize, viewport)
         controller.addTouchListener(game)
-        display = TimeDisplay(Box2D(Point2D(resolution.width - 200f, resolution.height + 50), 400f, -400f))
-        displayRenderer = DisplayRenderer(display, camera, SpriteBatch())
+        display = TimeDisplay()
+        displayRenderer = DisplayRenderer(Point2D(resolution.width - 200f, resolution.height + 50), display::getText, camera, SpriteBatch())
 
         displayRenderer.init()
+        scoreRenderer = DisplayRenderer(Point2D(150f, resolution.height + 50), game.scoreCounter::getText, camera, SpriteBatch())
+        scoreRenderer.init()
         controllerRenderer = ControllerRenderer(camera)
         gamepad = GamePadController(gameField.segments(), game)
 
@@ -85,6 +88,7 @@ class HotClack : ApplicationAdapter() {
             render(game.field)
             render(game.skyNet)
             game.getStones().forEach(renderer::renderStone)
+            scoreRenderer.render()
             end()
         }
     }
