@@ -64,10 +64,14 @@ class Enemy(val field: GameField, val enemyAI: EnemyAI, val segment: Int, speed:
     }
 
     fun growEnemy(deltaTime: Float): Unit {
-        if (canGrow() && !wasKilled()) {
-            val new = Stone(field[field.size - 1 - index()][segment], color)
-            new.state = Stone.State.Incoming
-            stones += new
+        if (canGrow()) {
+            if (!wasKilled()) {
+                val new = Stone(field[field.size - 1 - index()][segment], color)
+                new.state = Stone.State.Incoming
+                stones += new
+            }
+        } else {
+            enemyAI.enemyReachedBase()
         }
     }
 

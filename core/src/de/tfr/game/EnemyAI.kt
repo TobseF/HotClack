@@ -8,7 +8,7 @@ import de.tfr.game.util.Timer
 /**
  * @author Tobse4Git@gmail.com
  */
-class EnemyAI(val field: GameField) {
+class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
 
     val enemies = mutableListOf<Enemy>()
     private val enemiesToRemove = mutableListOf<Enemy>()
@@ -29,10 +29,13 @@ class EnemyAI(val field: GameField) {
         }
     }
 
+    fun enemyReachedBase() {
+        gameOverListener.invoke()
+    }
+
     private fun spawnEnemy() {
         val nextSegment = nextSegment()
         if (nextSegment != null) {
-
             var new = Enemy(field, this, nextSegment, enemySpeed)
             enemiesMap.put(nextSegment, new)
             enemies += new

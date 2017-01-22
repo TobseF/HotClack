@@ -35,13 +35,15 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     init {
         player = field.player
         timer = Timer(firstPause, this::doStep)
-        skyNet = EnemyAI(field)
+        skyNet = EnemyAI(field, this::enemyReachedBase)
+    }
+
+    fun enemyReachedBase() {
+        looseLive()
     }
 
     private fun doStep(deltaTime: Float) {
         timer.actionTime = incomingSpeedMax
-        // skyNet.doStep(deltaTime)
-        // move(active)
     }
 
     override fun controlEvent(control: Controller.Control) {
@@ -89,7 +91,6 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
             sounds.playLineOK()
             scoreCounter.score()
         } else {
-
             scoreCounter.unScore()
             if (looseLive == null) {
                 looseLive()
