@@ -70,10 +70,13 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         renderer.circle(x, y, radius)
         field.forEach(this::renderRing)
         renderPlayer(field.player)
-        renderColors()
+        // renderColors()
         // renderBorder()
     }
 
+    /**
+     * for debugging purpose
+     */
     private fun renderColors() {
         var x = this.x - 600
         var y = this.y - 600

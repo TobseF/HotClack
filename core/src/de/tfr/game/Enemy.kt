@@ -24,8 +24,8 @@ class Enemy(val field: GameField, val enemyAI: EnemyAI, val segment: Int, speed:
 
     fun initRandomezedSpeed(speed: Float): Speed {
         val current = speed.randomMutate(0.20f)
-        val max = speed.randomMutate(0.20f)
-        val min = speed.randomMutateUp(0.40f)
+        val max = speed.randomMutate(0.15f)
+        val min = speed.randomMutateUp(0.25f)
         val mutationRate = 0.1f.randomMutate(80f)
         return Speed(current, min, max, mutationRate, this::growEnemy)
     }

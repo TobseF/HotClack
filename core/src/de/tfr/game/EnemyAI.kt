@@ -20,6 +20,8 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
     private var enemySpeed = enemySpeedStart
     private val spawnRate = 0.15f
     private var paused = false
+    private var killedEnemies = 0
+    private val speedUp = 0.001f
 
     fun doStep(deltaTime: Float) {
         incomingLoop.actionTime = incomingSpeedMax
@@ -36,7 +38,7 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
     private fun spawnEnemy() {
         val nextSegment = nextSegment()
         if (nextSegment != null) {
-            var new = Enemy(field, this, nextSegment, enemySpeed)
+            val new = Enemy(field, this, nextSegment, enemySpeed)
             enemiesMap.put(nextSegment, new)
             enemies += new
         }
@@ -52,6 +54,7 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
     fun getEnemy(segment: Int): Enemy? = enemiesMap[segment]
 
     fun shoot(enemy: Enemy) {
+        enemySpeed -= speedUp
         enemy.shoot()
     }
 
@@ -86,6 +89,7 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
     }
 
     fun reset() {
+        killedEnemies = 0
         enemySpeed = enemySpeedStart
         enemies.clear()
         enemiesToRemove.clear()
