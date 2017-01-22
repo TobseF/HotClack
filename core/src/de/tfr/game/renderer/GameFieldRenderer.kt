@@ -2,7 +2,6 @@ package de.tfr.game.renderer
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
 import de.tfr.game.Enemy
@@ -27,7 +26,6 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
     private val radiusStoned = radius + 2
     private val radiusPlayer = radiusStoned + 8
     private val renderer = ShapeRenderer()
-    private val spriteBatch = SpriteBatch()
 
     class Colors {
         companion object {
@@ -41,13 +39,10 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
             val enemyBlue = Color.BLUE//}GameColor.BlueLight
             val enemyYellow = Color.YELLOW //GameColor.YellowLight
             val enemyGreen = Color.GREEN//GameColor.GreenLight
-
-            val activeStone = Color.CYAN
-            val setStone = Color.CYAN
         }
     }
 
-    public fun render(enemyAI: EnemyAI) {
+    fun render(enemyAI: EnemyAI) {
         enemyAI.enemies.forEach { renderEnemy(it) }
     }
 

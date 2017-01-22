@@ -40,19 +40,21 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     }
 
     override fun controlEvent(control: Controller.Control) {
-        when (control) {
-            Controller.Control.Blue -> shootColor(Stone.Color.Blue)
-            Controller.Control.Red -> shootColor(Stone.Color.Red)
-            Controller.Control.Yellow -> shootColor(Stone.Color.Yellow)
-            Controller.Control.Green -> shootColor(Stone.Color.Green)
-            Controller.Control.Up -> moveUp()
-            Controller.Control.Down -> moveDown()
-            Controller.Control.Left -> moveLeft()
-            Controller.Control.Right -> moveRight()
+        if (looseLive == null) {
+            when (control) {
+                Controller.Control.Blue -> shootColor(Stone.Color.Blue)
+                Controller.Control.Red -> shootColor(Stone.Color.Red)
+                Controller.Control.Yellow -> shootColor(Stone.Color.Yellow)
+                Controller.Control.Green -> shootColor(Stone.Color.Green)
+                Controller.Control.Up -> moveUp()
+                Controller.Control.Down -> moveDown()
+                Controller.Control.Left -> moveLeft()
+                Controller.Control.Right -> moveRight()
 
-            Controller.Control.Action -> setStone(player)
-            Controller.Control.Esc -> reset()
-            Controller.Control.Pause -> timer.togglePause()
+                Controller.Control.Action -> setStone(player)
+                Controller.Control.Esc -> reset()
+                Controller.Control.Pause -> timer.togglePause()
+            }
         }
     }
 
@@ -130,7 +132,6 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
 
     fun killAll() {
         looseLive = null
-        //  timer.actionTime = incomingSpeedStart
         skyNet.resume()
         skyNet.killAll()
     }
