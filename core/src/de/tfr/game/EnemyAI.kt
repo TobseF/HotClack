@@ -1,6 +1,9 @@
 package de.tfr.game
 
+import com.badlogic.gdx.math.MathUtils.randomBoolean
+import de.tfr.game.lib.random
 import de.tfr.game.model.GameField
+import de.tfr.game.util.Timer
 
 /**
  * @author Tobse4Git@gmail.com
@@ -8,31 +11,30 @@ import de.tfr.game.model.GameField
 class EnemyAI(val field: GameField) {
 
     val enemies = mutableListOf<Enemy>()
-    val enemiesToRemove = mutableListOf<Enemy>()
-    val enemiesMap = HashMap<Int, Enemy>()
-    val enemyRate = RandomStep(5)
+    private val enemiesToRemove = mutableListOf<Enemy>()
+    private val enemiesMap = HashMap<Int, Enemy>()
+    private val firstPause = 0.7f
+    private val incomingSpeedMax = 0.1f
+    private val incomingLoop = Timer(firstPause, this::doStep)
+    private val enemySpeed = 1.5f
+    private val spawnRate = 0.1f
 
-    fun doStep() {
-        enemies.forEach { it.doStep() }
-        if (enemyRate.doStep()) {
+    fun doStep(deltaTime: Float) {
+        incomingLoop.actionTime = incomingSpeedMax
+        enemies.forEach { it.doStep(deltaTime) }
+        if (randomBoolean(spawnRate)) {
             spawnEnemy()
         }
-
     }
 
     private fun spawnEnemy() {
         val nextSegment = nextSegment()
         if (nextSegment != null) {
-            var new = Enemy(field, this, nextSegment)
+
+            var new = Enemy(field, this, nextSegment, enemySpeed)
             enemiesMap.put(nextSegment, new)
             enemies += new
         }
-    }
-
-    class RandomStep(val chance: Int) {
-        val nextStep = MathUtils.random(chance)
-
-        fun doStep() = MathUtils.random(chance) == nextStep
     }
 
     fun listTakenSegments() = enemies.map { it.segment }
@@ -40,6 +42,7 @@ class EnemyAI(val field: GameField) {
     fun listFreeSegments() = (0..field.segments() - 1).filter { !listTakenSegments().contains(it) }.toList()
 
     fun nextSegment() = listFreeSegments().random()
+
     fun shoot(segment: Int) {
         val enemy = enemiesMap[segment]
         if (enemy != null) {

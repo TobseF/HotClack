@@ -3,7 +3,9 @@ package de.tfr.game.util
 /**
  * @author Tobse4Git@gmail.com
  */
-class Timer(var actionTime: Float, val timerAction: () -> Unit) : Time {
+open class Timer(var actionTime: Float, val timerAction: (deltaTime: Float) -> Unit) : Time {
+
+    constructor(actionTime: Float, simpleTimerAction: () -> Unit) : this(actionTime, { _ -> simpleTimerAction.invoke() })
 
     override var time = 0F
     private var pause = false
@@ -12,7 +14,7 @@ class Timer(var actionTime: Float, val timerAction: () -> Unit) : Time {
         time += deltaTime
         if (!pause && time >= actionTime) {
             time = 0F
-            timerAction.invoke()
+            timerAction.invoke(deltaTime)
         }
     }
 

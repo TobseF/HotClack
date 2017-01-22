@@ -22,7 +22,7 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     private var player: Stone
     private var activeRing: Ring? = null
     private val timer: Timer
-    private val fallingSpeed = 0.3f
+    private val incomingSpeedMax = 0.1f
     private val firstPause = 0.7f
     private val sounds = SoundMachine()
     val skyNet: EnemyAI
@@ -33,9 +33,9 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
         skyNet = EnemyAI(field)
     }
 
-    private fun doStep() {
-        timer.actionTime = fallingSpeed
-        skyNet.doStep()
+    private fun doStep(deltaTime: Float) {
+        timer.actionTime = incomingSpeedMax
+        skyNet.doStep(deltaTime)
         // move(active)
     }
 
