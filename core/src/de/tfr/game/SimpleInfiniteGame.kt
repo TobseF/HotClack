@@ -11,13 +11,6 @@ import de.tfr.game.util.Timer
  */
 class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
 
-    override fun controlEventSetSegment(segment: Int) {
-        if (segment < field.segments()) {
-            val next = field[player.block.row][segment]
-            player.block = next
-        }
-    }
-
     private var player: Stone
     private var activeRing: Ring? = null
     private val timer: Timer
@@ -54,10 +47,29 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
             Controller.Control.Green -> shootColor(Stone.Color.Green)
             Controller.Control.Up -> moveUp()
             Controller.Control.Down -> moveDown()
+            Controller.Control.Left -> moveLeft()
+            Controller.Control.Right -> moveRight()
+
             Controller.Control.Action -> setStone(player)
             Controller.Control.Esc -> reset()
             Controller.Control.Pause -> timer.togglePause()
         }
+    }
+
+    fun moveLeft() {
+        var segment = player.block.segment - 1
+        if (segment < 0) {
+            segment = field.segments() - 1
+        }
+        player.block = field[player.block.row][segment]
+    }
+
+    fun moveRight() {
+        var segment = player.block.segment + 1
+        if (segment >= field.segments()) {
+            segment = 0
+        }
+        player.block = field[player.block.row][segment]
     }
 
     private fun moveUp() {
@@ -179,6 +191,14 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
             activeRing = field[player.block.row]
         }
     }
+
+    override fun controlEventSetSegment(segment: Int) {
+        if (segment < field.segments()) {
+            val next = field[player.block.row][segment]
+            player.block = next
+        }
+    }
+
 
     private fun misstep() {
         sounds.playLineMissed()

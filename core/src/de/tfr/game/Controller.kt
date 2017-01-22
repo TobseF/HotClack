@@ -43,10 +43,14 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
         val touchPointers = getTouchPointers()
         fun touches(touchArea: TouchArea) = touchPointers.any(touchArea.rect::contains)
         when (control) {
-            Blue -> return input.isKeyPressed(Keys.LEFT) || touches(left)
-            Red -> return input.isKeyPressed(Keys.RIGHT) || touches(right)
-            Yellow -> return input.isKeyPressed(Keys.UP) || touches(top)
-            Green -> return input.isKeyPressed(Keys.DOWN) || touches(bottom)
+            Left -> return input.isKeyPressed(Keys.LEFT) || touches(left)
+            Right -> return input.isKeyPressed(Keys.RIGHT) || touches(right)
+            Up -> return input.isKeyPressed(Keys.UP) || touches(top)
+            Down -> return input.isKeyPressed(Keys.DOWN) || touches(bottom)
+            Blue -> return input.isKeyPressed(Keys.NUM_1) || input.isKeyPressed(Keys.NUMPAD_1) || touches(bottom)
+            Red -> return input.isKeyPressed(Keys.NUM_2) || input.isKeyPressed(Keys.NUMPAD_2) || touches(bottom)
+            Yellow -> return input.isKeyPressed(Keys.NUM_3) || input.isKeyPressed(Keys.NUMPAD_3) || touches(bottom)
+            Green -> return input.isKeyPressed(Keys.NUM_4) || input.isKeyPressed(Keys.NUMPAD_4) || touches(bottom)
         }
         return false
     }
@@ -78,10 +82,14 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
     override fun keyDown(keycode: Int): Boolean {
         fun toControl(keycode: Int) =
                 when (keycode) {
-                    Keys.RIGHT -> Red
-                    Keys.UP -> Yellow
-                    Keys.DOWN -> Green
-                    Keys.LEFT -> Blue
+                    Keys.RIGHT -> Right
+                    Keys.UP -> Up
+                    Keys.DOWN -> Down
+                    Keys.LEFT -> Left
+                    Keys.NUM_1, Keys.NUMPAD_1 -> Green
+                    Keys.NUM_2, Keys.NUMPAD_2 -> Red
+                    Keys.NUM_3, Keys.NUMPAD_3 -> Blue
+                    Keys.NUM_4, Keys.NUMPAD_4 -> Yellow
                     Keys.SPACE -> Action
                     Keys.P -> Pause
                     Keys.ESCAPE, Keys.BACK -> Esc
