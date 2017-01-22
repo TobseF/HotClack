@@ -1,21 +1,19 @@
 package de.tfr.game.renderer
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.Vector2
+import de.tfr.game.Enemy
+import de.tfr.game.EnemyAI
 import de.tfr.game.lib.actor.Point
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.Block
 import de.tfr.game.model.GameField
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
-import de.tfr.game.ui.GREEN_LIGHT
+import de.tfr.game.ui.GameColor
 
 
 /**
@@ -27,29 +25,40 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
     private val blockWith = 36f
     private val radius = 18f
     private val radiusStoned = radius + 2
-    private val radiusPlayer = radiusStoned + 5
+    private val radiusPlayer = radiusStoned + 8
     private val renderer = ShapeRenderer()
     private val spriteBatch = SpriteBatch()
 
     class Colors {
         companion object {
-            val emptyField = Color.CYAN
-            val stoneRed = Color.RED
-            val stoneBlue = Color.BLUE
-            val stoneYellow = Color.YELLOW
-            val stoneGreen = Color.GREEN
+            val emptyField = Color.GRAY
+            val stoneRed = GameColor.Red
+            val stoneBlue = GameColor.Blue
+            val stoneYellow = GameColor.Yellow
+            val stoneGreen = GameColor.Green
+
+            val enemyRed = Color.RED//GameColor.RedLight
+            val enemyBlue = Color.BLUE//}GameColor.BlueLight
+            val enemyYellow = Color.YELLOW //GameColor.YellowLight
+            val enemyGreen = Color.GREEN//GameColor.GreenLight
 
             val activeStone = Color.CYAN
             val setStone = Color.CYAN
         }
     }
 
+    public fun render(enemyAI: EnemyAI) {
+        enemyAI.enemies.forEach { renderEnemy(it) }
+    }
+
+    private fun renderEnemy(enemy: Enemy) {
+        enemy.stones.forEach {
+            renderStone(it)
+        }
+    }
     //private val background = Texture()
 
     fun start() {
-        val width = Gdx.graphics.width
-        val height = Gdx.graphics.height
-
         //val frameBuffer = FrameBuffer(Pixmap.Format.RGB565, width, height, false);
         // val frameRegion = TextureRegion(frameBuffer.getColorBufferTexture());
         //  frameRegion.flip(false, true);
@@ -65,32 +74,37 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         renderer.circle(x, y, radius)
         field.forEach(this::renderRing)
         renderPlayer(field.player)
+        renderColors()
         // renderBorder()
+    }
+
+    private fun renderColors() {
+        var x = this.x - 600
+        var y = this.y - 600
+
+        var i = 0
+        for (stoneColor in Stone.Color.values()) {
+            renderer.color = getEnemyRenderColor(stoneColor)
+            renderer.circle(x + (i++ * 24), y, 12f)
+        }
+
+        for (stoneColor in Stone.Color.values()) {
+            renderer.color = getRenderColor(stoneColor)
+            renderer.circle(x + (i++ * 24), y + 30, 12f)
+        }
     }
 
     private fun renderPlayer(player: Stone) {
         val playerPos = getPos(player.block)
-        renderer.color = Color.BLACK
+        renderer.color = Color.WHITE
         renderer.circle(playerPos.x, playerPos.y, radiusPlayer + 4)
         renderer.color = getRenderColor(player.color)
-        renderer.circle(playerPos.x, playerPos.y, radiusPlayer + 4)
+        renderer.circle(playerPos.x, playerPos.y, radiusPlayer)
 
-    }
-
-    fun renderBorder() {
-        spriteBatch.begin()
-        spriteBatch.enableBlending()
-        Gdx.gl.glEnable(GL20.GL_BLEND)
-        spriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_BLEND_DST_ALPHA)
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_BLEND_DST_ALPHA)
-
-        spriteBatch.projectionMatrix = camera.combined
-        //  spriteBatch.draw(background, x - (background.height / 2), y - (background.width / 2))
-        spriteBatch.end()
     }
 
     private fun renderBackground(field: GameField) {
-        renderer.color = GREEN_LIGHT
+        renderer.color = Color.BLACK
         val radius = getFieldSize(field)
         renderer.rect(x - radius, y - radius, radius * 2, radius * 2)
     }
@@ -106,20 +120,11 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         ring.forEach { renderBlock(it, it.stone) }
     }
 
-    fun renderTouchArea(touchAreas: List<Rectangle>) {
-        renderer.color = Color.NAVY
-
-        touchAreas.forEach {
-            val center = it.getCenter(Vector2())
-            renderer.circle(center.x, center.y, it.width / 2)
-        }
-    }
-
     fun renderStone(stone: Stone) {
         renderBlock(stone.block, stone)
     }
 
-    private fun getPos(block: Block): Point {
+    public fun getPos(block: Block): Point {
         val distance = gap + blockWith + (block.row * (gap + blockWith))
         val singleRotation = (360 / 12).toFloat()
         val degree = block.segment * singleRotation
@@ -128,13 +133,31 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         return Point2D(x, y)
     }
 
+    fun getRenderColor(stone: Stone): Color {
+        return getEnemyRenderColor(stone.color)
+/*
+        if(stone.state == Stone.State.Incoming){
+            return getEnemyRenderColor(stone.color)
+        }else{
+            return getRenderColor(stone.color)
+        }*/
+    }
+
+    fun getEnemyRenderColor(color: Stone.Color): Color {
+        when (color) {
+            Stone.Color.Blue -> return Colors.enemyBlue
+            Stone.Color.Green -> return Colors.enemyGreen
+            Stone.Color.Yellow -> return Colors.enemyYellow
+            Stone.Color.Red -> return Colors.enemyRed
+        }
+    }
+
     fun getRenderColor(color: Stone.Color): Color {
         when (color) {
             Stone.Color.Blue -> return Colors.stoneBlue
             Stone.Color.Green -> return Colors.stoneGreen
             Stone.Color.Yellow -> return Colors.stoneYellow
             Stone.Color.Red -> return Colors.stoneRed
-            Stone.Color.Undefined -> return Colors.emptyField
         }
     }
 
@@ -142,31 +165,17 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
         val renderPos = getPos(block)
 
         if (stone != null) {
-            renderer.color = getRenderColor(stone.color)
+            if (stone.state == Stone.State.Wall) {
+                renderer.color = Color.LIGHT_GRAY
+                renderer.circle(renderPos.x, renderPos.y, radiusStoned + 4)
+            }
+            renderer.color = getRenderColor(stone)
             renderer.circle(renderPos.x, renderPos.y, radiusStoned)
         } else {
             renderer.color = Colors.emptyField
             renderer.circle(renderPos.x, renderPos.y, radius)
         }
-
-        when {
-        /* stone == null -> renderer.color = Colors.emptyField
-         stone.state == Stone.State.Active -> renderer.color = BLACK
-         stone.state == Stone.State.Set -> renderer.color = GRAY_DARK*/
-        }
-
-        // renderer.arc(x,y,5f,distance,1*singleRotation,12)
-        //  renderBlock(block, block.segment * singleRotation, distance, stone)
-        for (i in 0..12) {
-            //renderBlock(block, i*singleRotation, distance, stone)
-        }
     }
-
-    private fun renderBlock(block: Block, degree: Float, distance: Float, stone: Stone?) {
-
-        //renderBlock(block, stone, x, y + distance, degree)
-    }
-
 
     private fun renderBlock(block: Block, stone: Stone?, x: Float, y: Float, degree: Float) {
         val lenghGrowth = 20f;

@@ -18,7 +18,7 @@ import de.tfr.game.model.GameField
 import de.tfr.game.renderer.ControllerRenderer
 import de.tfr.game.renderer.DisplayRenderer
 import de.tfr.game.renderer.GameFieldRenderer
-import de.tfr.game.ui.DEVICE
+import de.tfr.game.renderer.RenderAccess
 import de.tfr.game.util.extensions.OrthographicCamera
 import de.tfr.game.util.extensions.glClearColor
 
@@ -47,13 +47,13 @@ class HotClack : ApplicationAdapter() {
     private lateinit var stage: Stage
     private lateinit var shapeRenderer: ShapeRenderer
 
-
     override fun create() {
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
         game = SimpleInfiniteGame(gameField)
         camera = OrthographicCamera(resolution)
         camera.setToOrtho(false)
+        val renderAccess = RenderAccess(camera)
 
         viewport = FitViewport(resolution.width, resolution.height, camera)
         val center = resolution.getCenter()
@@ -61,12 +61,13 @@ class HotClack : ApplicationAdapter() {
         val gameFieldSize = renderer.getFieldSize(gameField)
         controller = Controller(center, gameFieldSize, viewport)
         controller.addTouchListener(game)
-        display = Display(Box2D(center, 280f, 90f))
+        display = Display(Box2D(Point2D(resolution.width - 200f, resolution.height + 50), 400f, -400f))
         displayRenderer = DisplayRenderer(display, camera, SpriteBatch())
 
         displayRenderer.init()
         controllerRenderer = ControllerRenderer(camera)
         gamepad = GamePadController(gameField.segments(), game)
+
     }
 
     override fun render() {
@@ -82,18 +83,18 @@ class HotClack : ApplicationAdapter() {
         with(renderer) {
             start()
             render(game.field)
+            render(game.skyNet)
             game.getStones().forEach(renderer::renderStone)
             end()
-            renderBorder()
         }
     }
 
-    private fun clear() = clear(DEVICE)
+    private fun clear() = clear(Color.BLACK)
 
     private fun clear(color: Color) {
         Gdx.gl.glClearColor(color)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        renderGameBackground()
+        //renderGameBackground()
     }
 
     private fun renderGameBackground() {

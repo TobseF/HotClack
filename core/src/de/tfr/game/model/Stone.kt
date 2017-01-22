@@ -1,14 +1,21 @@
 package de.tfr.game.model
 
+import de.tfr.game.lib.random
+
 /**
  * @author Tobse4Git@gmail.com
  */
-class Stone(private val initBlock: Block) {
+class Stone(private val initBlock: Block, var color: Color) {
 
-    enum class Color {Green, Blue, Red, Yellow, Undefined }
+    enum class Color {Green, Blue, Red, Yellow;
+
+        companion object {
+            fun random() = values().random()
+        }
+    }
     enum class State {Wall, Incoming, Active, Set }
 
-    var color = Color.Undefined
+    var size = 0
 
     var state = State.Active
 
@@ -26,8 +33,7 @@ class Stone(private val initBlock: Block) {
     }
 
     fun clone(): Stone {
-        var copy = Stone(initBlock)
-        copy.color = this.color
+        var copy = Stone(initBlock, this.color)
         copy.state = this.state
         return copy
     }

@@ -9,7 +9,7 @@ class GameField(val size: Int) : Iterable<Ring> {
     val player: Stone
 
     init {
-        player = Stone(this[0][0])
+        player = Stone(this[0][0], Stone.Color.Red)
     }
 
     override fun iterator() = rings.iterator()

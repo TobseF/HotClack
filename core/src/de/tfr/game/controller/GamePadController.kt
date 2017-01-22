@@ -36,7 +36,7 @@ class GamePadController(val segments: Int, val controlListener: Controller.Contr
 
         val segment = angle / degreesPerSegment
 
-        println(angle.toString() + ":" + segment + " = " + segment.toInt())
+        // println(angle.toString() + ":" + segment + " = " + segment.toInt())
         controlListener.controlEventSetSegment(segment.toInt())
 
         /* if (angle > (360 - (degreesPerSegment / 2))) {

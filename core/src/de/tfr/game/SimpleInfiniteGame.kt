@@ -25,14 +25,17 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     private val fallingSpeed = 0.3f
     private val firstPause = 0.7f
     private val sounds = SoundMachine()
+    val skyNet: EnemyAI
 
     init {
         player = field.player
         timer = Timer(firstPause, this::doStep)
+        skyNet = EnemyAI(field)
     }
 
     private fun doStep() {
         timer.actionTime = fallingSpeed
+        skyNet.doStep()
         // move(active)
     }
 
@@ -94,7 +97,7 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
 
     private fun respawnStone() {
         val field = field[field.size - 1][randomFreeOrientation()]
-        player = Stone(field)
+        player = Stone(field, Stone.Color.Red)
         timer.reset()
         timer.actionTime = firstPause
     }

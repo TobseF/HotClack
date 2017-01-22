@@ -2,14 +2,13 @@ package de.tfr.game.renderer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import de.tfr.game.Display
-import de.tfr.game.ui.GRAY_DARK
 import de.tfr.game.ui.GREEN_LIGHT
-import de.tfr.game.ui.GREEN_LIGHT2
 
 /**
  * @author Tobse4Git@gmail.com
@@ -37,17 +36,17 @@ class DisplayRenderer(val display: Display, val camera: Camera, val batch: Sprit
 
         renderer.color = GREEN_LIGHT
 
-        renderer.rect(display.x - display.width / 2, display.y - 510, display.width, display.height)
+        //renderer.rect(display.x - display.width / 2, display.y - 510, display.width, display.height)
         renderer.end()
 
         batch.projectionMatrix = camera.combined
         batch.begin()
         glyphLayout.setText(font, "88:88")
-        font.color = GRAY_DARK
-        font.draw(batch, glyphLayout, display.x - (glyphLayout.width / 2), display.y - 370 - glyphLayout.height / 2)
+        font.color = Color.WHITE
+        font.draw(batch, glyphLayout, display.x - (glyphLayout.width / 2), display.y - glyphLayout.height / 2)
         glyphLayout.setText(font, display.getText())
-        font.color = GREEN_LIGHT2
-        font.draw(batch, glyphLayout, display.x - (glyphLayout.width / 2), display.y - 370 - glyphLayout.height / 2)
+        font.color = Color.DARK_GRAY
+        font.draw(batch, glyphLayout, display.x - (glyphLayout.width / 2), display.y - glyphLayout.height / 2)
         batch.end()
 
         end()
