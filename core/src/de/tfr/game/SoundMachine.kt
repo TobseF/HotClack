@@ -13,12 +13,19 @@ class SoundMachine() {
     private val circle_ok = newSound("circle_ok.ogg")
     private val line_missed = newSound("line_missed.ogg")
     private val line_ok = newSound("line_ok.ogg")
+    private val gameover = newSound("gameover.ogg")
 
     private fun newSound(fileName: String) = audio.newSound(files.internal("sounds/" + fileName))
 
     fun playCircleOK() {
         if (enabled) {
             circle_ok.play()
+        }
+    }
+
+    fun playGameOver() {
+        if (enabled) {
+            gameover.play()
         }
     }
 

@@ -16,8 +16,10 @@ class EnemyAI(val field: GameField) {
     private val firstPause = 0.7f
     private val incomingSpeedMax = 0.1f
     private val incomingLoop = Timer(firstPause, this::doStep)
-    private val enemySpeed = 1.5f
-    private val spawnRate = 0.1f
+    private val enemySpeedStart = 1.5f
+    private var enemySpeed = enemySpeedStart
+    private val spawnRate = 0.15f
+    private var paused = false
 
     fun doStep(deltaTime: Float) {
         incomingLoop.actionTime = incomingSpeedMax
@@ -55,15 +57,36 @@ class EnemyAI(val field: GameField) {
     }
 
     fun update(deltaTime: Float) {
-        enemies.forEach { it.update(deltaTime) }
-        val enemiesToRemoveIterator = enemiesToRemove.iterator();
-        while (enemiesToRemoveIterator.hasNext()) {
-            val kill = enemiesToRemoveIterator.next()
-            enemies.remove(kill)
-            enemiesMap.remove(kill.segment)
-            enemiesToRemoveIterator.remove()
+        if (!paused) {
+            incomingLoop.update(deltaTime)
+            enemies.forEach { it.update(deltaTime) }
+            val enemiesToRemoveIterator = enemiesToRemove.iterator();
+            while (enemiesToRemoveIterator.hasNext()) {
+                val kill = enemiesToRemoveIterator.next()
+                enemies.remove(kill)
+                enemiesMap.remove(kill.segment)
+                enemiesToRemoveIterator.remove()
+            }
         }
-
     }
 
+    fun killAll() {
+        enemies.forEach { shoot(it) }
+    }
+
+    fun pause() {
+        paused = true
+    }
+
+    fun resume() {
+        paused = false
+    }
+
+    fun reset() {
+        enemySpeed = enemySpeedStart
+        enemies.clear()
+        enemiesToRemove.clear()
+        enemiesMap.clear()
+        resume()
+    }
 }

@@ -14,10 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport
 import de.tfr.game.controller.GamePadController
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.GameField
-import de.tfr.game.renderer.ControllerRenderer
-import de.tfr.game.renderer.DisplayRenderer
-import de.tfr.game.renderer.GameFieldRenderer
-import de.tfr.game.renderer.RenderAccess
+import de.tfr.game.renderer.*
 import de.tfr.game.util.extensions.OrthographicCamera
 import de.tfr.game.util.extensions.glClearColor
 
@@ -47,6 +44,7 @@ class HotClack : ApplicationAdapter() {
     lateinit var batch: SpriteBatch
     private lateinit var stage: Stage
     private lateinit var shapeRenderer: ShapeRenderer
+    private lateinit var liveRenderer: LiveRenderer
 
     override fun create() {
         shapeRenderer = ShapeRenderer()
@@ -70,7 +68,13 @@ class HotClack : ApplicationAdapter() {
         scoreRenderer.init()
         controllerRenderer = ControllerRenderer(camera)
         gamepad = GamePadController(gameField.segments(), game)
+        liveRenderer = LiveRenderer(Point2D(60f, resolution.height - 150), game::lives, newShapeRenderer(), camera)
+    }
 
+    fun newShapeRenderer(): ShapeRenderer {
+        val renderer = ShapeRenderer()
+        renderer.projectionMatrix = camera.combined
+        return renderer
     }
 
     override fun render() {
@@ -80,6 +84,7 @@ class HotClack : ApplicationAdapter() {
         renderField()
         game.update(graphics.deltaTime)
         displayRenderer.render()
+        liveRenderer.render()
     }
 
     private fun renderField() {

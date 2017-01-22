@@ -14,4 +14,9 @@ class ScoreCounter(var score: Long = 0) {
     fun unScore() {
         score = Math.max(0, score - penaltyScore)
     }
+
+    fun reset() {
+        score = 0
+    }
+
 }

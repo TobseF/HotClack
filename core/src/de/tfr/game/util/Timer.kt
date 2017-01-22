@@ -9,10 +9,14 @@ open class Timer(var actionTime: Float, val timerAction: (deltaTime: Float) -> U
 
     override var time = 0F
     private var pause = false
+    private var infinite = true
 
     fun update(deltaTime: Float) {
         time += deltaTime
         if (!pause && time >= actionTime) {
+            if (!infinite) {
+                pause = true
+            }
             time = 0F
             timerAction.invoke(deltaTime)
         }

@@ -1,7 +1,6 @@
 package de.tfr.game
 
 import de.tfr.game.model.GameField
-import de.tfr.game.model.Orientation
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
 import de.tfr.game.model.Stone.State
@@ -22,12 +21,16 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     private var player: Stone
     private var activeRing: Ring? = null
     private val timer: Timer
-    private val incomingSpeedMax = 0.1f
-    private val firstPause = 0.7f
+    private var looseLive: Timer? = null
+    private val incomingSpeedStart = 0.1f
+    private var incomingSpeedMax = 0.1f
+    private val firstPause = 0.1f
     private val sounds = SoundMachine()
     val scoreCounter = ScoreCounter()
 
     val skyNet: EnemyAI
+
+    var lives = 3
 
     init {
         player = field.player
@@ -37,17 +40,16 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
 
     private fun doStep(deltaTime: Float) {
         timer.actionTime = incomingSpeedMax
-        skyNet.doStep(deltaTime)
+        // skyNet.doStep(deltaTime)
         // move(active)
     }
 
     override fun controlEvent(control: Controller.Control) {
         when (control) {
-        // active.block.orientation.toControl() -> setStone()
-            Controller.Control.Blue -> setColor(Stone.Color.Blue)
-            Controller.Control.Red -> setColor(Stone.Color.Red)
-            Controller.Control.Yellow -> setColor(Stone.Color.Yellow)
-            Controller.Control.Green -> setColor(Stone.Color.Green)
+            Controller.Control.Blue -> shootColor(Stone.Color.Blue)
+            Controller.Control.Red -> shootColor(Stone.Color.Red)
+            Controller.Control.Yellow -> shootColor(Stone.Color.Yellow)
+            Controller.Control.Green -> shootColor(Stone.Color.Green)
             Controller.Control.Up -> moveUp()
             Controller.Control.Down -> moveDown()
             Controller.Control.Action -> setStone(player)
@@ -78,9 +80,8 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
         }
     }
 
-    fun setColor(color: Stone.Color) {
+    fun shootColor(color: Stone.Color) {
         player.color = color
-
 
         val enemy = skyNet.getEnemy(player.block.segment)
         if (enemy != null && enemy.color == player.color) {
@@ -88,9 +89,37 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
             sounds.playLineOK()
             scoreCounter.score()
         } else {
-            sounds.playLineMissed()
+
             scoreCounter.unScore()
+            if (looseLive == null) {
+                looseLive()
+            }
         }
+    }
+
+    private fun looseLive() {
+        lives--
+        skyNet.pause()
+        if (lives == 0) {
+            sounds.playGameOver()
+            looseLive = Timer(5f, this::gameOver)
+        } else {
+            sounds.playLineMissed()
+            looseLive = Timer(2f, this::killAll)
+        }
+
+    }
+
+    private fun gameOver() {
+        looseLive?.actionTime = 5f
+        reset()
+    }
+
+    fun killAll() {
+        looseLive = null
+        //  timer.actionTime = incomingSpeedStart
+        skyNet.resume()
+        skyNet.killAll()
     }
 
 
@@ -99,25 +128,17 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
     fun update(deltaTime: Float) {
         timer.update(deltaTime)
         skyNet.update(deltaTime)
+        looseLive?.update(deltaTime)
     }
 
     private fun reset() {
+        lives = 3
+        scoreCounter.reset()
         field.reset()
         timer.reset()
+        skyNet.reset()
         activeRing = null
-        respawnStone()
-    }
-
-    private fun respawnStone() {
-        val field = field[field.size - 1][randomFreeOrientation()]
-        player = Stone(field, Stone.Color.Red)
-        timer.reset()
-        timer.actionTime = firstPause
-    }
-
-    private fun randomFreeOrientation(): Orientation {
-        //activeRing?.randomFreeSide() ?: Orientation.random()
-        return Orientation.Up
+        looseLive = null
     }
 
 
@@ -156,7 +177,6 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
             sounds.playLineOK()
             activeRing = field[player.block.row]
         }
-        respawnStone()
     }
 
     private fun misstep() {
@@ -165,7 +185,6 @@ class SimpleInfiniteGame(val field: GameField) : Controller.ControlListener {
         if (player.state == State.Set) {
             player.block.reset()
         }
-        respawnStone()
     }
 
     private fun resetRing() {
