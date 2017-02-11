@@ -46,10 +46,9 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
 
     fun listTakenSegments() = enemies.map { it.segment }
 
-    fun listFreeSegments() = (0..field.segments() - 1).filter { !listTakenSegments().contains(it) }.toList()
+    fun listFreeSegments() = (0 until field.getNumberOfSegments()).filter { !listTakenSegments().contains(it) }.toList()
 
     fun nextSegment() = listFreeSegments().random()
-
 
     fun getEnemy(segment: Int): Enemy? = enemiesMap[segment]
 
@@ -66,7 +65,7 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
         if (!paused) {
             incomingLoop.update(deltaTime)
             enemies.forEach { it.update(deltaTime) }
-            val enemiesToRemoveIterator = enemiesToRemove.iterator();
+            val enemiesToRemoveIterator = enemiesToRemove.iterator()
             while (enemiesToRemoveIterator.hasNext()) {
                 val kill = enemiesToRemoveIterator.next()
                 enemies.remove(kill)

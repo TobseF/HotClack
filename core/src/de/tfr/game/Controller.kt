@@ -8,14 +8,23 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import de.tfr.game.Controller.Control.*
+import de.tfr.game.lib.Logger
 import de.tfr.game.lib.actor.Point
+import de.tfr.game.lib.controls.GamePad
+import de.tfr.game.util.angle
+import de.tfr.game.util.extensions.Vector2
+import de.tfr.game.util.extensions.unproject
 import java.util.*
 
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : InputProcessor by InputAdapter(), Point by point {
+class Controller(point: Point, gameRadius: Float, val viewport: Viewport, segments: Int) : InputProcessor by InputAdapter(), Point by point {
+
+    companion object {
+        val log = Logger.new(GamePad::class)
+    }
 
     val left: TouchArea
     val right: TouchArea
@@ -31,6 +40,8 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
     enum class Control {Up, Down, Left, Right, Blue, Red, Yellow, Green, Esc, Action, Pause }
     private class Button(centerX: Float, centerY: Float, radius: Float) : Rectangle(centerX - radius, centerY - radius, radius * 2, radius * 2)
     class TouchArea(val control: Control, val rect: Rectangle)
+
+    val degreesPerSegment = 360 / segments
 
     interface ControlListener {
         fun controlEvent(control: Control)
@@ -71,12 +82,23 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        val worldCords = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
-        touchAreas.filter { it.rect.contains(worldCords.x, worldCords.y) }.forEach {
+        val worldCords = viewport.unproject(screenX, screenY)
+        touchAreas.filter { it.rect.contains(worldCords) }.forEach {
             doHapticFeedback()
             notifyListener(it.control)
         }
         return true
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        val screenCords = Vector2(screenX, screenY)
+        val worldCords = viewport.unproject(screenCords)
+        val angle = 360 - Math.abs(Vector2(x, y).sub(worldCords).
+                angle(90F - (degreesPerSegment / 2)))
+        val segment = (angle / degreesPerSegment).toInt()
+        log.debug("angle: ${angle} segment: ${segment}")
+        notifyListener(segment)
+        return false
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -105,5 +127,8 @@ class Controller(point: Point, gameRadius: Float, val viewport: Viewport) : Inpu
     fun addTouchListener(touchListener: ControlListener) = touchListeners.add(touchListener)
 
     private fun notifyListener(control: Control) = touchListeners.forEach { it.controlEvent(control) }
+
+    private fun notifyListener(segment: Int) = touchListeners.forEach { it.controlEventSetSegment(segment) }
+
 
 }

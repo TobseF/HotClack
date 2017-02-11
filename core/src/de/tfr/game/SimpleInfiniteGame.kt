@@ -1,5 +1,6 @@
 package de.tfr.game
 
+import de.tfr.game.lib.Logger
 import de.tfr.game.model.GameField
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
@@ -11,6 +12,10 @@ import de.tfr.game.util.Timer
  * @author Tobse4Git@gmail.com
  */
 class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controller.ControlListener {
+
+    companion object {
+        val log = Logger.new(SimpleInfiniteGame::class)
+    }
 
     private var player: Stone
     private var activeRing: Ring? = null
@@ -68,14 +73,14 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
     fun moveLeft() {
         var segment = player.block.segment - 1
         if (segment < 0) {
-            segment = field.segments() - 1
+            segment = field.getNumberOfSegments()
         }
         player.block = field[player.block.row][segment]
     }
 
     fun moveRight() {
         var segment = player.block.segment + 1
-        if (segment >= field.segments()) {
+        if (segment >= field.getNumberOfSegments()) {
             segment = 0
         }
         player.block = field[player.block.row][segment]
@@ -89,15 +94,9 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
         }
     }
 
-    private fun dropStone() {
-        val dropped = player.clone()
-        dropped.state = State.Wall
-        player.block.stone = dropped
-    }
-
     private fun moveDown() {
         val nextRow = player.block.row + 1
-        if (nextRow < field.size) {
+        if (nextRow < field.getNumberOfSegments()) {
             val next = field[nextRow][player.block.segment]
             player.block = next
         }
@@ -165,24 +164,6 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
         watch.reset()
     }
 
-
-    private fun move(stone: Stone) {
-        if (stone.isInLastRow()) {
-            misstep()
-        } else {
-            val next = field[player.block.row - 1][player.block.segment]
-            player.block = next
-        }
-    }
-
-    private fun Stone.isInLastRow() = this.block.row == 0
-
-    private fun setStone() {
-        if (player.block.isEmpty()) {
-            setStone(player)
-        }
-    }
-
     private infix fun Stone.isOutsideOf(ring: Ring?) = ring?.index != this.block.row
 
     private fun setStone(stone: Stone) {
@@ -204,9 +185,11 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
     }
 
     override fun controlEventSetSegment(segment: Int) {
-        if (segment < field.segments()) {
+        if (segment in 0 until field.getNumberOfSegments()) {
             val next = field[player.block.row][segment]
             player.block = next
+        } else {
+
         }
     }
 

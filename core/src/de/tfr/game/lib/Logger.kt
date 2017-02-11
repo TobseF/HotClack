@@ -1,5 +1,6 @@
 package de.tfr.game.lib
 
+import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import kotlin.reflect.KClass
 
@@ -8,8 +9,16 @@ import kotlin.reflect.KClass
  */
 class Logger(val tag: String) : Log {
 
+    enum class LogLevel(val logLevel: Int) {
+        None(Application.LOG_NONE), Debug(Application.LOG_DEBUG), Info(Application.LOG_INFO), Error(Application.LOG_ERROR);
+
+    }
+
     companion object {
         fun new(classForTag: KClass<*>): Log = Logger(classForTag)
+        fun setLevel(logLevel: LogLevel) {
+            Gdx.app.logLevel = logLevel.logLevel
+        }
     }
 
     constructor(classForTag: KClass<*>) : this(classForTag.simpleName ?: "")

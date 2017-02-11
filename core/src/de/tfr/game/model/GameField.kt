@@ -3,9 +3,9 @@ package de.tfr.game.model
 /**
  * @author Tobse4Git@gmail.com
  */
-class GameField(val size: Int) : Iterable<Ring> {
+class GameField(numberOfRings: Int, private val numberOfSegments: Int) : Iterable<Ring> {
 
-    private var rings: Array<Ring> = Array(size, this::newRing)
+    private var rings: Array<Ring> = Array(numberOfRings, this::newRing)
     val player: Stone
 
     init {
@@ -17,10 +17,12 @@ class GameField(val size: Int) : Iterable<Ring> {
 
     private fun newRing(index: Int) = Ring(this, index)
 
-    operator fun get(index: Int) = rings[index]
+    operator fun get(ringIndex: Int) = rings[ringIndex]
 
     fun reset() = rings.forEach(Ring::reset)
 
-    fun segments() = rings[0].size()
+    fun getNumberOfRings() = rings.size
+
+    fun getNumberOfSegments() = numberOfSegments
 
 }

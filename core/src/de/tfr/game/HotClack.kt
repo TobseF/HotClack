@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import de.tfr.game.controller.GamePadController
+import de.tfr.game.lib.Logger
+import de.tfr.game.lib.Logger.LogLevel
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.GameField
 import de.tfr.game.renderer.*
@@ -38,8 +40,9 @@ class HotClack : ApplicationAdapter() {
 
     private lateinit var game: SimpleInfiniteGame
     private lateinit var gamepad: GamePadController
-
-    private val gameField = GameField(13)
+    val rings = 13
+    val segments = 8 //12
+    private val gameField = GameField(rings, segments)
     private val resolution = Resolution(1400f, 1400f)
     lateinit var batch: SpriteBatch
     private lateinit var stage: Stage
@@ -47,6 +50,7 @@ class HotClack : ApplicationAdapter() {
     private lateinit var liveRenderer: LiveRenderer
 
     override fun create() {
+        Logger.setLevel(LogLevel.Debug)
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
         timeDisplay = TimeDisplay()
@@ -57,9 +61,8 @@ class HotClack : ApplicationAdapter() {
 
         viewport = FitViewport(resolution.width, resolution.height, camera)
         val center = resolution.getCenter()
-        renderer = GameFieldRenderer(center, camera)
-        val gameFieldSize = renderer.getFieldSize(gameField)
-        controller = Controller(center, gameFieldSize, viewport)
+        renderer = GameFieldRenderer(center, gameField, camera)
+        controller = Controller(center, renderer.getFieldSize(), viewport, gameField.getNumberOfSegments())
         controller.addTouchListener(game)
         displayRenderer = DisplayRenderer(Point2D(resolution.width - 200f, resolution.height + 50), timeDisplay::getText, camera, SpriteBatch())
 
@@ -67,7 +70,7 @@ class HotClack : ApplicationAdapter() {
         scoreRenderer = DisplayRenderer(Point2D(150f, resolution.height + 50), game.scoreCounter::getText, camera, SpriteBatch())
         scoreRenderer.init()
         controllerRenderer = ControllerRenderer(camera)
-        gamepad = GamePadController(gameField.segments(), game)
+        gamepad = GamePadController(gameField.getNumberOfSegments(), game)
         liveRenderer = LiveRenderer(Point2D(60f, resolution.height - 150), game::lives, newShapeRenderer(), camera)
     }
 
@@ -89,7 +92,7 @@ class HotClack : ApplicationAdapter() {
     private fun renderField() {
         with(renderer) {
             start()
-            render(game.field)
+            render()
             render(game.skyNet)
             game.getStones().forEach(renderer::renderStone)
             scoreRenderer.render()

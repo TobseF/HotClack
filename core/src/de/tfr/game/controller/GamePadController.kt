@@ -2,14 +2,20 @@ package de.tfr.game.controller
 
 import com.badlogic.gdx.math.Vector2
 import de.tfr.game.Controller
+import de.tfr.game.lib.Logger
 import de.tfr.game.lib.controls.GamePad
 import de.tfr.game.lib.controls.XBox360Pad
+import de.tfr.game.util.angle
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class GamePadController(val segments: Int, val controlListener: Controller.ControlListener) : GamePad() {
+class GamePadController(segments: Int, val controlListener: Controller.ControlListener) : GamePad() {
     val degreesPerSegment = 360 / segments
+
+    companion object {
+        val log = Logger.new(GamePadController::class)
+    }
 
     override fun buttonDown(controller: com.badlogic.gdx.controllers.Controller, buttonCode: Int): Boolean {
         when (buttonCode) {
@@ -24,25 +30,15 @@ class GamePadController(val segments: Int, val controlListener: Controller.Contr
         return true
     }
 
+
     override fun leftStickMoved(x: Float, y: Float) {
         //Right -> 90°
-        var angle = Vector2(x, y).angle() + 90
-        if (angle < 0) {
-            angle = 360 + angle
-        }
-        if (angle > 360) {
-            angle = angle - 360
-        }
+        val angle = Vector2(x, y).angle(90F + (degreesPerSegment / 2))
 
-        val segment = angle / degreesPerSegment
+        val segment = (angle / degreesPerSegment).toInt()
+        log.debug("angle: ${angle} segment: ${segment}")
 
-        // println(angle.toString() + ":" + segment + " = " + segment.toInt())
-        controlListener.controlEventSetSegment(segment.toInt())
 
-        /* if (angle > (360 - (degreesPerSegment / 2))) {
-             return controlListener.controlEventSetSegment(0)
-         } else {
-             controlListener.controlEventSetSegment((angle / segments).toInt())
-         }*/
+        controlListener.controlEventSetSegment(segment)
     }
 }
