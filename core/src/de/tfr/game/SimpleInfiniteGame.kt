@@ -4,12 +4,13 @@ import de.tfr.game.model.GameField
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
 import de.tfr.game.model.Stone.State
+import de.tfr.game.util.StopWatch
 import de.tfr.game.util.Timer
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : Controller.ControlListener {
+class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controller.ControlListener {
 
     private var player: Stone
     private var activeRing: Ring? = null
@@ -17,7 +18,7 @@ class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : 
     private var looseLive: Timer? = null
     private val incomingSpeedStart = 0.1f
     private var incomingSpeedMax = 0.1f
-    private val firstPause = 0.1f
+    private val firstPause = 0.01f
     private val sounds = SoundMachine()
     val scoreCounter = ScoreCounter()
 
@@ -37,6 +38,7 @@ class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : 
 
     private fun doStep(deltaTime: Float) {
         timer.actionTime = incomingSpeedMax
+
     }
 
     override fun controlEvent(control: Controller.Control) {
@@ -53,9 +55,14 @@ class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : 
 
                 Controller.Control.Action -> setStone(player)
                 Controller.Control.Esc -> reset()
-                Controller.Control.Pause -> timer.togglePause()
+                Controller.Control.Pause -> gogglePause()
             }
         }
+    }
+
+    private fun gogglePause() {
+        timer.togglePause()
+        watch.togglePause()
     }
 
     fun moveLeft() {
@@ -141,8 +148,10 @@ class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : 
 
     fun update(deltaTime: Float) {
         timer.update(deltaTime)
-        skyNet.update(deltaTime)
-        looseLive?.update(deltaTime)
+        if (!watch.pause) {
+            skyNet.update(deltaTime)
+            looseLive?.update(deltaTime)
+        }
     }
 
     private fun reset() {
@@ -153,7 +162,7 @@ class SimpleInfiniteGame(val field: GameField, val resetListener: () -> Unit) : 
         skyNet.reset()
         activeRing = null
         looseLive = null
-        resetListener.invoke()
+        watch.reset()
     }
 
 
