@@ -15,6 +15,7 @@ import de.tfr.game.HotClack;
 public class SmartphoneLauncher {
 	public static void main(String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.samples = 2;
 		config.width = 800;
 		config.height = 1920 / 2;
 		new LwjglApplication(new HotClack(), config);

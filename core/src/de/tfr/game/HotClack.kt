@@ -105,7 +105,10 @@ class HotClack : ApplicationAdapter() {
 
     private fun clear(color: Color) {
         Gdx.gl.glClearColor(color)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or
+                //Hack to also support NVIDIA Tegra Chips (http://www.badlogicgames.com/wordpress/?p=2071)
+                GL20.GL_DEPTH_BUFFER_BIT or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0)
+
         //renderGameBackground()
     }
 

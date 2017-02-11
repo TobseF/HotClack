@@ -17,6 +17,7 @@ public class SmartphoneLauncherHD {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1080;
 		config.height = 1920;
+		config.samples = 2;
 		new LwjglApplication(new HotClack(), config);
 	}
 }

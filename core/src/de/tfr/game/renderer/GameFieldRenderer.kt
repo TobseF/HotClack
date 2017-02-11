@@ -63,7 +63,6 @@ class GameFieldRenderer(point: Point, val camera: Camera) : Point by point {
     }
 
     fun render(field: GameField) {
-
         renderBackground(field)
 
         renderer.color = Colors.emptyField
