@@ -5,9 +5,6 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Vector2
-import de.tfr.game.Controller
-import de.tfr.game.Controller.Control
 
 /**
  * @author Tobse4Git@gmail.com
@@ -33,29 +30,6 @@ class ControllerRenderer(val camera: Camera) {
         blue = ButtonTexture(buttons[2], buttons[3])
         yellow = ButtonTexture(buttons[4], buttons[5])
         red = ButtonTexture(buttons[6], buttons[7])
-    }
-
-    fun render(controller: Controller) {
-        batch.projectionMatrix = camera.combined
-        batch.begin()
-
-        val radius = width / 2F
-        fun draw(textureRegion: TextureRegion, touchArea: Controller.TouchArea) {
-            val pos = touchArea.rect.getCenter(Vector2()).sub(radius, radius)
-            batch.draw(textureRegion, pos.x, pos.y)
-        }
-
-        fun button(button: ButtonTexture, control: Control): TextureRegion {
-            return if (controller.isPressed(control)) button.pressed else button.normal
-        }
-
-
-        draw(button(red, Control.Blue), controller.left)
-        draw(button(blue, Control.Red), controller.right)
-        draw(button(yellow, Control.Green), controller.bottom)
-        draw(button(green, Control.Yellow), controller.top)
-
-        batch.end()
     }
 
     class SpriteSheet(val texture: Texture, val width: Int, val height: Int, val horizontalCount: Int, val verticalCount: Int) {

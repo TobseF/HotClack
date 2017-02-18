@@ -1,17 +1,18 @@
 package de.tfr.game
 
+import de.tfr.game.Controller.ControlEvent.ControlEvenType.Clicked
+import de.tfr.game.Controller.ControlEvent.ControlEvenType.Selected
 import de.tfr.game.lib.Logger
 import de.tfr.game.model.GameField
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
-import de.tfr.game.model.Stone.State
 import de.tfr.game.util.StopWatch
 import de.tfr.game.util.Timer
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controller.ControlListener {
+class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val colorChooser: ColorChooser) : Controller.ControlListener {
 
     companion object {
         val log = Logger.new(SimpleInfiniteGame::class)
@@ -46,24 +47,34 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
 
     }
 
-    override fun controlEvent(control: Controller.Control) {
+    override fun controlEvent(controlEvent: Controller.ControlEvent) {
         if (looseLive == null) {
-            when (control) {
+            if (controlEvent.type == Clicked) {
+                when (controlEvent.control) {
                 Controller.Control.Blue -> shootColor(Stone.Color.Blue)
                 Controller.Control.Red -> shootColor(Stone.Color.Red)
                 Controller.Control.Yellow -> shootColor(Stone.Color.Yellow)
                 Controller.Control.Green -> shootColor(Stone.Color.Green)
-                Controller.Control.Up -> moveUp()
-                Controller.Control.Down -> moveDown()
+                    Controller.Control.Up -> setColor(colorChooser.next())
+                    Controller.Control.Down -> setColor(colorChooser.prev())
                 Controller.Control.Left -> moveLeft()
                 Controller.Control.Right -> moveRight()
 
-                Controller.Control.Action -> setStone(player)
+                    Controller.Control.Action -> shootColor()
                 Controller.Control.Esc -> reset()
                 Controller.Control.Pause -> gogglePause()
             }
+            } else if (controlEvent.type == Selected) {
+                controlEvent.control.toColor()?.let(this::setColor)
+            }
         }
     }
+
+    private fun setColor(color: Stone.Color) {
+        player.color = color
+        colorChooser.color = color
+    }
+
 
     private fun gogglePause() {
         timer.togglePause()
@@ -73,7 +84,7 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
     fun moveLeft() {
         var segment = player.block.segment - 1
         if (segment < 0) {
-            segment = field.getNumberOfSegments()
+            segment = field.getNumberOfSegments() - 1
         }
         player.block = field[player.block.row][segment]
     }
@@ -86,24 +97,8 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
         player.block = field[player.block.row][segment]
     }
 
-    private fun moveUp() {
-        val nextRow = player.block.row - 1
-        if (nextRow >= 0) {
-            val nextBlock = field[nextRow][player.block.segment]
-            player.block = nextBlock
-        }
-    }
-
-    private fun moveDown() {
-        val nextRow = player.block.row + 1
-        if (nextRow < field.getNumberOfSegments()) {
-            val next = field[nextRow][player.block.segment]
-            player.block = next
-        }
-    }
-
-    fun shootColor(color: Stone.Color) {
-        player.color = color
+    fun shootColor(color: Stone.Color? = null) {
+        player.color = color ?: player.color
 
         val enemy = skyNet.getEnemy(player.block.segment)
         if (enemy != null && enemy.color == player.color) {
@@ -142,7 +137,6 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
         skyNet.killAll()
     }
 
-
     fun getStones() = listOf(player)
 
     fun update(deltaTime: Float) {
@@ -164,54 +158,14 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch) : Controlle
         watch.reset()
     }
 
-    private infix fun Stone.isOutsideOf(ring: Ring?) = ring?.index != this.block.row
-
-    private fun setStone(stone: Stone) {
-        player.block.stone = player
-        stone.freeze()
-        if (activeRing != null) {
-            if (activeRing!!.isFull()) {
-                sounds.playCircleOK()
-                activeRing = null
-            } else if (player isOutsideOf activeRing) {
-                misstep()
-            } else {
-                sounds.playLineOK()
-            }
-        } else {
-            sounds.playLineOK()
-            activeRing = field[player.block.row]
-        }
-    }
-
-    override fun controlEventSetSegment(segment: Int) {
+    override fun controlEventSetSegment(type: Controller.SegmentActionType, segment: Int) {
         if (segment in 0 until field.getNumberOfSegments()) {
             val next = field[player.block.row][segment]
             player.block = next
-        } else {
-
         }
-    }
-
-
-    private fun misstep() {
-        sounds.playLineMissed()
-        resetRing()
-        if (player.state == State.Set) {
-            player.block.reset()
+        if (type == Controller.SegmentActionType.Clicked) {
+            shootColor()
         }
-    }
-
-    private fun resetRing() {
-        activeRing?.reset()
-        activeRing = null
-        resetLastFullRing()
-    }
-
-    private fun firstFull() = field.find(Ring::isFull)
-
-    private fun resetLastFullRing() {
-        firstFull()?.reset()
     }
 
 }

@@ -48,21 +48,24 @@ class HotClack : ApplicationAdapter() {
     private lateinit var stage: Stage
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var liveRenderer: LiveRenderer
+    private lateinit var colorChooseRenderer: ColorChooserRenderer
 
     override fun create() {
         Logger.setLevel(LogLevel.Debug)
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
         timeDisplay = TimeDisplay()
-        game = SimpleInfiniteGame(gameField, timeDisplay.watch)
+        val colorChooser = ColorChooser()
+        game = SimpleInfiniteGame(gameField, timeDisplay.watch, colorChooser)
         camera = OrthographicCamera(resolution)
         camera.setToOrtho(false)
-        val renderAccess = RenderAccess(camera)
 
         viewport = FitViewport(resolution.width, resolution.height, camera)
         val center = resolution.getCenter()
         renderer = GameFieldRenderer(center, gameField, camera)
-        controller = Controller(center, renderer.getFieldSize(), viewport, gameField.getNumberOfSegments())
+        colorChooseRenderer = ColorChooserRenderer(Point2D(70f, 70f), colorChooser, newShapeRenderer(), camera)
+
+        controller = Controller(center, renderer.getFieldRadius(), viewport, gameField.getNumberOfSegments(), colorChooseRenderer)
         controller.addTouchListener(game)
         displayRenderer = DisplayRenderer(Point2D(resolution.width - 200f, resolution.height + 50), timeDisplay::getText, camera, SpriteBatch())
 
@@ -96,6 +99,7 @@ class HotClack : ApplicationAdapter() {
             render(game.skyNet)
             game.getStones().forEach(renderer::renderStone)
             scoreRenderer.render()
+            colorChooseRenderer.render()
             end()
         }
     }

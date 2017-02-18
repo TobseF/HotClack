@@ -55,7 +55,7 @@ open class GamePad : ControllerListener {
     }
 
     open fun leftStickMoved(valueX: Float, valueY: Float) {
-        println("leftStickMoved: " + valueX + " " + valueY)
+
     }
 
     open fun rightStickMoved(valueX: Float, valueY: Float) {

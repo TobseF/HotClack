@@ -13,6 +13,7 @@ class Stone(private val initBlock: Block, var color: Color) {
             fun random() = values().random()
         }
     }
+
     enum class State {Wall, Incoming, Active, Set }
 
     var size = 0
@@ -33,7 +34,7 @@ class Stone(private val initBlock: Block, var color: Color) {
     }
 
     fun clone(): Stone {
-        var copy = Stone(initBlock, this.color)
+        val copy = Stone(initBlock, this.color)
         copy.state = this.state
         return copy
     }

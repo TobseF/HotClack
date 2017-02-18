@@ -20,12 +20,13 @@ import de.tfr.game.ui.GameColor
  */
 class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) : Point by point {
 
-    private val gap = 14
+    private val gap = 12
     private val blockWith = 36f
     private val radius = 18f
     private val radiusStoned = radius + 2
     private val radiusPlayer = radiusStoned + 8
     private val renderer = ShapeRenderer()
+    private val enemyGrow = 4f
 
     class Colors {
         companion object {
@@ -48,7 +49,6 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
 
     private fun renderEnemy(enemy: Enemy) {
         var i = enemy.stones.size
-        var enemyGrow = 6f
         enemy.stones.forEach {
             val renderPos = getPos(it.block)
             renderer.color = getRenderColor(it)
@@ -103,11 +103,11 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
 
     private fun renderBackground() {
         renderer.color = Color.BLACK
-        val radius = getFieldSize()
+        val radius = getFieldRadius()
         renderer.rect(x - radius, y - radius, radius * 2, radius * 2)
     }
 
-    fun getFieldSize(): Float = (blockWith / 2) + field.getNumberOfSegments() * (gap + blockWith)
+    fun getFieldRadius(): Float = getDistance(field.getNumberOfRings())
 
     fun end() {
         renderer.end()
@@ -122,13 +122,16 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
     }
 
     fun getPos(block: Block): Point {
-        val distance = gap + blockWith + (block.row * (gap + blockWith))
+        val rowIndex = block.row
+        val distance = getDistance(rowIndex)
         val singleRotation = (360 / field.getNumberOfSegments()).toFloat()
         val degree = block.segment * singleRotation
         val x = this.x + (distance * Math.sin(Math.toRadians(degree.toDouble()))).toFloat()
         val y = this.y + (distance * Math.cos(Math.toRadians(degree.toDouble()))).toFloat()
         return Point2D(x, y)
     }
+
+    private fun getDistance(rowIndex: Int) = gap + blockWith + (rowIndex * (gap + blockWith))
 
     fun getRenderColor(stone: Stone): Color {
         return getEnemyRenderColor(stone.color)
@@ -140,23 +143,7 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
         }*/
     }
 
-    fun getEnemyRenderColor(color: Stone.Color): Color {
-        when (color) {
-            Stone.Color.Blue -> return Colors.enemyBlue
-            Stone.Color.Green -> return Colors.enemyGreen
-            Stone.Color.Yellow -> return Colors.enemyYellow
-            Stone.Color.Red -> return Colors.enemyRed
-        }
-    }
 
-    fun getRenderColor(color: Stone.Color): Color {
-        when (color) {
-            Stone.Color.Blue -> return Colors.stoneBlue
-            Stone.Color.Green -> return Colors.stoneGreen
-            Stone.Color.Yellow -> return Colors.stoneYellow
-            Stone.Color.Red -> return Colors.stoneRed
-        }
-    }
 
     private fun renderBlock(block: Block, stone: Stone?) {
         val renderPos = getPos(block)
@@ -174,4 +161,22 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
         }
     }
 
+}
+
+fun getEnemyRenderColor(color: Stone.Color): Color {
+    when (color) {
+        Stone.Color.Blue -> return GameFieldRenderer.Colors.enemyBlue
+        Stone.Color.Green -> return GameFieldRenderer.Colors.enemyGreen
+        Stone.Color.Yellow -> return GameFieldRenderer.Colors.enemyYellow
+        Stone.Color.Red -> return GameFieldRenderer.Colors.enemyRed
+    }
+}
+
+fun getRenderColor(color: Stone.Color): Color {
+    when (color) {
+        Stone.Color.Blue -> return GameFieldRenderer.Colors.stoneBlue
+        Stone.Color.Green -> return GameFieldRenderer.Colors.stoneGreen
+        Stone.Color.Yellow -> return GameFieldRenderer.Colors.stoneYellow
+        Stone.Color.Red -> return GameFieldRenderer.Colors.stoneRed
+    }
 }

@@ -26,19 +26,16 @@ class GamePadController(segments: Int, val controlListener: Controller.ControlLi
 
             XBox360Pad.Companion.BUTTON_LB -> controlListener.controlEvent(Controller.Control.Up)
             XBox360Pad.Companion.BUTTON_RB -> controlListener.controlEvent(Controller.Control.Down)
+            XBox360Pad.Companion.BUTTON_BACK -> controlListener.controlEvent(Controller.Control.Esc)
         }
         return true
     }
 
 
-    override fun leftStickMoved(x: Float, y: Float) {
+    override fun leftStickMoved(valueX: Float, valueY: Float) {
         //Right -> 90°
-        val angle = Vector2(x, y).angle(90F + (degreesPerSegment / 2))
-
+        val angle = Vector2(valueX, valueY).angle(90F + (degreesPerSegment / 2))
         val segment = (angle / degreesPerSegment).toInt()
-        log.debug("angle: ${angle} segment: ${segment}")
-
-
-        controlListener.controlEventSetSegment(segment)
+        controlListener.controlEventSetSegment(Controller.SegmentActionType.Selected, segment)
     }
 }
