@@ -4,6 +4,7 @@ import de.tfr.game.Controller.ControlEvent.ControlEvenType.Clicked
 import de.tfr.game.Controller.ControlEvent.ControlEvenType.Selected
 import de.tfr.game.lib.Logger
 import de.tfr.game.model.GameField
+import de.tfr.game.model.Player
 import de.tfr.game.model.Ring
 import de.tfr.game.model.Stone
 import de.tfr.game.util.StopWatch
@@ -18,23 +19,22 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
         val log = Logger.new(SimpleInfiniteGame::class)
     }
 
-    private var player: Stone
+    private var player: Player
     private var activeRing: Ring? = null
-    private val timer: Timer
-    private var looseLive: Timer? = null
-    private val incomingSpeedStart = 0.1f
-    private var incomingSpeedMax = 0.1f
-    private val firstPause = 0.01f
+    private var missedShotPause: Timer = Timer(2.5F, this::reactivatePlayer, runOnStart = false, infinite = false)
+    private var looseLivePause: Timer = Timer(2.5F, this::reactivatePlayer, runOnStart = false, infinite = false)
+    private var gameOverPause: Timer = Timer(5f, this::gameOver, runOnStart = false, infinite = false)
+    private var resetPause: Timer = Timer(2f, this::reset, runOnStart = false, infinite = false)
+    private val livesAtStart = 3
     private val sounds = SoundMachine()
     val scoreCounter = ScoreCounter()
 
     val skyNet: EnemyAI
 
-    var lives = 3
+    var lives = livesAtStart
 
     init {
         player = field.player
-        timer = Timer(firstPause, this::doStep)
         skyNet = EnemyAI(field, this::enemyReachedBase)
     }
 
@@ -42,28 +42,23 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
         looseLive()
     }
 
-    private fun doStep(deltaTime: Float) {
-        timer.actionTime = incomingSpeedMax
-
-    }
-
     override fun controlEvent(controlEvent: Controller.ControlEvent) {
-        if (looseLive == null) {
+        if (isPlayerBlocked()) {
             if (controlEvent.type == Clicked) {
                 when (controlEvent.control) {
-                Controller.Control.Blue -> shootColor(Stone.Color.Blue)
-                Controller.Control.Red -> shootColor(Stone.Color.Red)
-                Controller.Control.Yellow -> shootColor(Stone.Color.Yellow)
-                Controller.Control.Green -> shootColor(Stone.Color.Green)
+                    Controller.Control.Blue -> shootColor(Stone.Color.Blue)
+                    Controller.Control.Red -> shootColor(Stone.Color.Red)
+                    Controller.Control.Yellow -> shootColor(Stone.Color.Yellow)
+                    Controller.Control.Green -> shootColor(Stone.Color.Green)
                     Controller.Control.Up -> setColor(colorChooser.next())
                     Controller.Control.Down -> setColor(colorChooser.prev())
-                Controller.Control.Left -> moveLeft()
-                Controller.Control.Right -> moveRight()
+                    Controller.Control.Left -> moveLeft()
+                    Controller.Control.Right -> moveRight()
 
                     Controller.Control.Action -> shootColor()
-                Controller.Control.Esc -> reset()
-                Controller.Control.Pause -> gogglePause()
-            }
+                    Controller.Control.Esc -> reset()
+                    Controller.Control.Pause -> gogglePause()
+                }
             } else if (controlEvent.type == Selected) {
                 controlEvent.control.toColor()?.let(this::setColor)
             }
@@ -77,7 +72,6 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
 
 
     private fun gogglePause() {
-        timer.togglePause()
         watch.togglePause()
     }
 
@@ -86,7 +80,7 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
         if (segment < 0) {
             segment = field.getNumberOfSegments() - 1
         }
-        player.block = field[player.block.row][segment]
+        player.block.segment = field[player.block.row][segment].segment
     }
 
     fun moveRight() {
@@ -94,7 +88,7 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
         if (segment >= field.getNumberOfSegments()) {
             segment = 0
         }
-        player.block = field[player.block.row][segment]
+        player.block.segment = field[player.block.row][segment].segment
     }
 
     fun shootColor(color: Stone.Color? = null) {
@@ -106,33 +100,45 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
             sounds.playLineOK()
             scoreCounter.score()
         } else {
-            scoreCounter.unScore()
-            if (looseLive == null) {
-                looseLive()
-            }
+            missedShot()
         }
+    }
+
+    private fun missedShot() {
+        blockPlayer()
+        sounds.playLineMissed()
+        missedShotPause.reStart()
+    }
+
+    private fun reactivatePlayer() {
+        player.blocked = false
+        colorChooser.blocked = false
     }
 
     private fun looseLive() {
         lives--
         skyNet.pause()
+        sounds.playGameOver()
+        blockPlayer()
         if (lives == 0) {
-            sounds.playGameOver()
-            looseLive = Timer(5f, this::gameOver)
+            watch.pause()
+            gameOverPause.reStart()
         } else {
-            sounds.playLineMissed()
-            looseLive = Timer(2f, this::killAll)
+            killAll()
+            looseLivePause.reStart()
         }
+    }
 
+    private fun blockPlayer() {
+        player.blocked = true
+        colorChooser.blocked = true
     }
 
     private fun gameOver() {
-        looseLive?.actionTime = 5f
-        reset()
+        resetPause.reStart()
     }
 
     fun killAll() {
-        looseLive = null
         skyNet.resume()
         skyNet.killAll()
     }
@@ -140,32 +146,40 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
     fun getStones() = listOf(player)
 
     fun update(deltaTime: Float) {
-        timer.update(deltaTime)
         if (!watch.pause) {
             skyNet.update(deltaTime)
-            looseLive?.update(deltaTime)
         }
+        looseLivePause.update(deltaTime)
+        missedShotPause.update(deltaTime)
+        gameOverPause.update(deltaTime)
+        resetPause.update(deltaTime)
     }
 
     private fun reset() {
-        lives = 3
+        lives = livesAtStart
         scoreCounter.reset()
         field.reset()
-        timer.reset()
         skyNet.reset()
         activeRing = null
-        looseLive = null
+        missedShotPause.reset()
+        gameOverPause.reset()
+        resetPause.reset()
+        reactivatePlayer()
         watch.reset()
     }
 
     override fun controlEventSetSegment(type: Controller.SegmentActionType, segment: Int) {
-        if (segment in 0 until field.getNumberOfSegments()) {
-            val next = field[player.block.row][segment]
-            player.block = next
-        }
-        if (type == Controller.SegmentActionType.Clicked) {
-            shootColor()
+        if (isPlayerBlocked()) {
+            if (segment in 0 until field.getNumberOfSegments()) {
+                val next = field[player.block.row][segment]
+                player.block.segment = next.segment
+            }
+            if (type == Controller.SegmentActionType.Clicked) {
+                shootColor()
+            }
         }
     }
+
+    private fun isPlayerBlocked() = !(missedShotPause.isRunning() || looseLivePause.isRunning() || gameOverPause.isRunning())
 
 }

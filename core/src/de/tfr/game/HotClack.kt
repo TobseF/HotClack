@@ -12,8 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import de.tfr.game.controller.GamePadController
-import de.tfr.game.lib.Logger
-import de.tfr.game.lib.Logger.LogLevel
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.GameField
 import de.tfr.game.renderer.*
@@ -51,7 +49,7 @@ class HotClack : ApplicationAdapter() {
     private lateinit var colorChooseRenderer: ColorChooserRenderer
 
     override fun create() {
-        Logger.setLevel(LogLevel.Debug)
+        //Logger.setLevel(LogLevel.Debug)
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
         timeDisplay = TimeDisplay()
@@ -97,7 +95,6 @@ class HotClack : ApplicationAdapter() {
             start()
             render()
             render(game.skyNet)
-            game.getStones().forEach(renderer::renderStone)
             scoreRenderer.render()
             colorChooseRenderer.render()
             end()
@@ -111,16 +108,6 @@ class HotClack : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or
                 //Hack to also support NVIDIA Tegra Chips (http://www.badlogicgames.com/wordpress/?p=2071)
                 GL20.GL_DEPTH_BUFFER_BIT or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0)
-
-        //renderGameBackground()
-    }
-
-    private fun renderGameBackground() {
-        shapeRenderer.setAutoShapeType(true)
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        shapeRenderer.projectionMatrix = camera.combined
-        shapeRenderer.rect(0f, 0f, resolution.width, resolution.height)
-        shapeRenderer.end()
     }
 
     override fun resize(width: Int, height: Int) {

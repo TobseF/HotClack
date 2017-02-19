@@ -61,7 +61,11 @@ class ColorChooserRenderer(point: Point, val colorChooser: ColorChooser, val ren
                 renderCircle(circle)
             }
             circle.radius = colorRadius
-            renderer.color = getEnemyRenderColor(color)
+            if (colorChooser.blocked) {
+                renderer.color = Color.DARK_GRAY
+            } else {
+                renderer.color = getEnemyRenderColor(color)
+            }
             renderCircle(circle)
         }
 

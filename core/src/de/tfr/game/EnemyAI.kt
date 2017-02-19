@@ -1,9 +1,11 @@
 package de.tfr.game
 
-import com.badlogic.gdx.math.MathUtils.randomBoolean
+import de.tfr.game.lib.Log
+import de.tfr.game.lib.Logger
 import de.tfr.game.lib.random
 import de.tfr.game.model.GameField
 import de.tfr.game.util.Timer
+import de.tfr.game.util.randomMutate
 
 /**
  * @author Tobse4Git@gmail.com
@@ -11,24 +13,28 @@ import de.tfr.game.util.Timer
 class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
 
     val enemies = mutableListOf<Enemy>()
+
+    companion object {
+        val log: Log = Logger.new(EnemyAI::class)
+    }
+
     private val enemiesToRemove = mutableListOf<Enemy>()
     private val enemiesMap = HashMap<Int, Enemy>()
-    private val firstPause = 0.7f
-    private val incomingSpeedMax = 0.1f
-    private val incomingLoop = Timer(firstPause, this::doStep)
     private val enemySpeedStart = 1.5f
+    private val spawnSpeedStart = 2.2f
+
+    private var spawnSpeed = spawnSpeedStart
+    private val spawnLoop = Timer(0f, this::spawnEnemyLoop)
+    private val enemySpeedUp = 0.005f
+    private val spawnSpeedUp = 0.02f
+
     private var enemySpeed = enemySpeedStart
-    private val spawnRate = 0.15f
     private var paused = false
     private var killedEnemies = 0
-    private val speedUp = 0.001f
 
-    fun doStep(deltaTime: Float) {
-        incomingLoop.actionTime = incomingSpeedMax
-        enemies.forEach { it.doStep(deltaTime) }
-        if (randomBoolean(spawnRate)) {
-            spawnEnemy()
-        }
+    fun spawnEnemyLoop() {
+        spawnEnemy()
+        spawnLoop.actionTime = spawnSpeed.randomMutate(0.25f)
     }
 
     fun enemyReachedBase() {
@@ -38,9 +44,9 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
     private fun spawnEnemy() {
         val nextSegment = nextSegment()
         if (nextSegment != null) {
-            val new = Enemy(field, this, nextSegment, enemySpeed)
-            enemiesMap.put(nextSegment, new)
-            enemies += new
+            val enemy = Enemy(field, this, nextSegment, enemySpeed)
+            enemiesMap.put(nextSegment, enemy)
+            enemies += enemy
         }
     }
 
@@ -53,8 +59,10 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
     fun getEnemy(segment: Int): Enemy? = enemiesMap[segment]
 
     fun shoot(enemy: Enemy) {
-        enemySpeed -= speedUp
+        enemySpeed -= enemySpeedUp
+        spawnSpeed -= spawnSpeedUp
         enemy.shoot()
+        log.debug("spawnSpeed $spawnSpeed enemySpeed: $enemySpeed")
     }
 
     fun remove(enemy: Enemy) {
@@ -63,7 +71,7 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
 
     fun update(deltaTime: Float) {
         if (!paused) {
-            incomingLoop.update(deltaTime)
+            spawnLoop.update(deltaTime)
             enemies.forEach { it.update(deltaTime) }
             val enemiesToRemoveIterator = enemiesToRemove.iterator()
             while (enemiesToRemoveIterator.hasNext()) {
@@ -89,6 +97,7 @@ class EnemyAI(val field: GameField, val gameOverListener: () -> Unit) {
 
     fun reset() {
         killedEnemies = 0
+        spawnSpeed = spawnSpeedStart
         enemySpeed = enemySpeedStart
         enemies.clear()
         enemiesToRemove.clear()

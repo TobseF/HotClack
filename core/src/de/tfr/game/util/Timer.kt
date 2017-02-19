@@ -3,13 +3,16 @@ package de.tfr.game.util
 /**
  * @author Tobse4Git@gmail.com
  */
-open class Timer(var actionTime: Float, val timerAction: (deltaTime: Float) -> Unit) : Time {
-
-    constructor(actionTime: Float, simpleTimerAction: () -> Unit) : this(actionTime, { _ -> simpleTimerAction.invoke() })
+open class Timer(var actionTime: Float, val timerAction: (deltaTime: Float) -> Unit = { _ -> }, runOnStart: Boolean = true, private var infinite: Boolean = true) : Time {
 
     override var time = 0F
     private var pause = false
-    private var infinite = true
+
+    init {
+        pause = !runOnStart
+    }
+
+    constructor(actionTime: Float, simpleTimerAction: () -> Unit, runOnStart: Boolean = true, infinite: Boolean = true) : this(actionTime, { _ -> simpleTimerAction.invoke() }, runOnStart, infinite)
 
     fun update(deltaTime: Float) {
         time += deltaTime
@@ -26,8 +29,24 @@ open class Timer(var actionTime: Float, val timerAction: (deltaTime: Float) -> U
         pause = !pause
     }
 
+    fun start() {
+        pause = false
+    }
+
+    fun reStart() {
+        reset()
+        start()
+    }
+
+    fun stop() {
+        pause = true
+    }
+
     fun reset() {
         time = 0F
     }
+
+    fun isRunning() = !pause
+    fun isPaused() = pause
 
 }

@@ -5,7 +5,7 @@ import de.tfr.game.lib.random
 /**
  * @author Tobse4Git@gmail.com
  */
-class Stone(private val initBlock: Block, var color: Color) {
+open class Stone(private val initBlock: Block, var color: Color) {
 
     enum class Color {Green, Blue, Red, Yellow;
 

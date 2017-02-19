@@ -24,6 +24,7 @@ fun Vector2.angle(correction: Float): Float {
 fun Float.randomChange(percent: Float): Float = MathUtils.random() * (percent * this)
 
 fun Float.randomMutateUp(percent: Float): Float = this + this.randomChange(percent)
+fun Float.randomMutateDown(percent: Float): Float = this - this.randomChange(percent)
 
 fun Float.randomMutate(percent: Float): Float {
     var mutation = this.randomChange(percent)

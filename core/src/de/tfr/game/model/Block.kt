@@ -3,7 +3,7 @@ package de.tfr.game.model
 /**
  * @author Tobse4Git@gmail.com
  */
-class Block(val ring: Ring, val row: Int, val segment: Int) {
+class Block(val ring: Ring, var row: Int, var segment: Int) {
     var stone: Stone? = null
 
     fun isEmpty(): Boolean {

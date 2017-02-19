@@ -8,10 +8,7 @@ import de.tfr.game.Enemy
 import de.tfr.game.EnemyAI
 import de.tfr.game.lib.actor.Point
 import de.tfr.game.lib.actor.Point2D
-import de.tfr.game.model.Block
-import de.tfr.game.model.GameField
-import de.tfr.game.model.Ring
-import de.tfr.game.model.Stone
+import de.tfr.game.model.*
 import de.tfr.game.ui.GameColor
 
 
@@ -24,7 +21,7 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
     private val blockWith = 36f
     private val radius = 18f
     private val radiusStoned = radius + 2
-    private val radiusPlayer = radiusStoned + 8
+    private val radiusPlayer = radiusStoned + 2
     private val renderer = ShapeRenderer()
     private val enemyGrow = 4f
 
@@ -64,7 +61,6 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
 
     fun render() {
         //  renderBackground()
-
         renderer.color = Colors.emptyField
         renderer.circle(x, y, radius)
         field.forEach(this::renderRing)
@@ -92,11 +88,19 @@ class GameFieldRenderer(point: Point, val field: GameField, val camera: Camera) 
         }
     }
 
-    private fun renderPlayer(player: Stone) {
+    private fun renderPlayer(player: Player) {
         val playerPos = getPos(player.block)
         renderer.color = Color.WHITE
-        renderer.circle(playerPos.x, playerPos.y, radiusPlayer + 4)
-        renderer.color = getRenderColor(player.color)
+        val ringWidth = 4
+        val ringGap = 4
+        renderer.circle(playerPos.x, playerPos.y, radiusPlayer + ringGap + ringWidth)
+        renderer.color = Color.BLACK
+        renderer.circle(playerPos.x, playerPos.y, radiusPlayer + ringGap)
+        if (player.blocked) {
+            renderer.color = Color.DARK_GRAY
+        } else {
+            renderer.color = getEnemyRenderColor(player.color)
+        }
         renderer.circle(playerPos.x, playerPos.y, radiusPlayer)
 
     }

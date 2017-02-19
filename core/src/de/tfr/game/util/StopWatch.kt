@@ -14,7 +14,10 @@ class StopWatch(var start: ms = currentTimeMillis()) {
 
     fun reset() {
         start = currentTimeMillis()
+        pause = false
     }
+
+    fun pause() = true
 
     fun togglePause() {
         pause = !pause

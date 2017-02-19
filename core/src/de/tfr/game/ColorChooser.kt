@@ -9,6 +9,7 @@ import de.tfr.game.util.extensions.prev
  */
 class ColorChooser {
     var color = Stone.Color.Green
+    var blocked = false
 
     fun next(): Stone.Color {
         color = color.next()

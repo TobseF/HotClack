@@ -6,10 +6,10 @@ package de.tfr.game.model
 class GameField(numberOfRings: Int, private val numberOfSegments: Int) : Iterable<Ring> {
 
     private var rings: Array<Ring> = Array(numberOfRings, this::newRing)
-    val player: Stone
+    val player: Player
 
     init {
-        player = Stone(this[0][0], Stone.Color.Red)
+        player = Player(Block(rings[0], 0, 0), Stone.Color.Red)
     }
 
     override fun iterator() = rings.iterator()
