@@ -4,7 +4,7 @@ My summit for the [Global Game Jam](http://globalgamejam.org/2017/jam-sites/hfg-
 Defend your base from color waves by strike them back with the correct color. Try to survive as long as possible.
 
 ## Controls
-For the best user experience its strongly recommended to use a XBox 360 Controller.
+For the best user experience its recommended to use a XBox 360 Controller.
 
 ### Gamepad
 Use your **left analog stick** to rotate your cannon around the base.
@@ -15,10 +15,16 @@ Fire a color bullet with the corresponding button:
 * Button-**X**: Blue
 * Button-**Y**: Yellow
 
+### Mouse
+Click on an incoming wave to destroy it.
+
+Change color by mouse wheel, or by clicking the color in the left corner.
+
 ### Keyboard
 Use **left** and **right** to rotate your cannon around the base.
+Use **up** and **down** to change the color.
 
-Fire a color bullet with the corresponding number:
+Pro gamers can also direct fire a color with the numbers:
 * **1**: Green
 * **2**: Red
 * **3**: Blue
