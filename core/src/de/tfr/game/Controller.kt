@@ -28,8 +28,6 @@ class Controller(point: Point, private val gameRadius: Float, val viewport: View
         val Log = Logger.new(GamePad::class)
     }
 
-    private val vibrateTime = 26
-
     private val touchListeners: MutableCollection<ControlListener> = ArrayList()
 
     enum class Control {Up, Down, Left, Right, Blue, Red, Yellow, Green, Esc, Action, Pause }
@@ -58,9 +56,21 @@ class Controller(point: Point, private val gameRadius: Float, val viewport: View
 
     private fun getTouchPointers() = (0..6).filter(input::isTouched).map { viewport.unproject(TouchPoint(it)) }.filter { !it.isZero }
 
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        val worldCords = viewport.unproject(Vector2(screenX, screenY))
+        chooseColor(worldCords)
+        return true
+    }
+
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val screenCords = Vector2(screenX, screenY)
         val worldCords = viewport.unproject(screenCords.cpy())
+        checkSegmentSelection(screenCords, worldCords)
+        chooseColor(worldCords)
+        return true
+    }
+
+    private fun checkSegmentSelection(screenCords: Vector2, worldCords: Vector2?) {
         if (Vector2(x, y).sub(worldCords).len() <= gameRadius) {
             val angleSegment = posToAngle(screenCords, 90F - degreesPerHalfSegment)
             val angle = posToAngle(screenCords, (0f))
@@ -73,11 +83,12 @@ class Controller(point: Point, private val gameRadius: Float, val viewport: View
                 notifyListener(SegmentActionType.Clicked, segment)
             }
         }
+    }
+
+    private fun chooseColor(worldCords: Vector2?) {
         colorChooseRenderer.touchAreas.filter { it.rect.contains(worldCords) }.forEach {
-            doHapticFeedback()
             notifyListener(ControlEvent(Selected, it.getControl()))
         }
-        return true
     }
 
     override fun scrolled(amount: Int): Boolean {
@@ -122,11 +133,8 @@ class Controller(point: Point, private val gameRadius: Float, val viewport: View
                     else -> null
                 }
         toControl(keycode)?.let(this::notifyListenerAsLickEvent)
-        doHapticFeedback()
         return true
     }
-
-    private fun doHapticFeedback() = input.vibrate(vibrateTime)
 
     fun addTouchListener(touchListener: ControlListener) = touchListeners.add(touchListener)
 

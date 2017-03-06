@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Rectangle
 import de.tfr.game.ColorChooser
 import de.tfr.game.Controller
+import de.tfr.game.config.GameConfig
 import de.tfr.game.lib.actor.Point
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.Stone
@@ -15,7 +16,7 @@ import de.tfr.game.model.Stone
  *
  *
  */
-class ColorChooserRenderer(point: Point, val colorChooser: ColorChooser, val renderer: ShapeRenderer, val camera: Camera) : Point by point {
+class ColorChooserRenderer(config: GameConfig.ColorChooserRendererConf, val colorChooser: ColorChooser, val renderer: ShapeRenderer, val camera: Camera) : Point by config.position {
 
     class TouchArea(val color: Stone.Color, val rect: Rectangle) {
 
@@ -31,10 +32,10 @@ class ColorChooserRenderer(point: Point, val colorChooser: ColorChooser, val ren
 
     class Circle(point: Point, var radius: Float) : Point by point
 
-    val radius = 50f
-    val gap = 6f
-    val selectionWidth = 8f
-    val selectionGap = 8f
+    val radius = config.radius
+    val gap = config.gap
+    val selectionWidth = config.selectionWidth
+    val selectionGap = config.selectionGap
     val colorRadius = radius - selectionWidth - selectionGap
 
     val touchAreas: List<TouchArea> = Stone.Color.values().map(this::getTouchArea).toList()
@@ -73,7 +74,7 @@ class ColorChooserRenderer(point: Point, val colorChooser: ColorChooser, val ren
     }
 
 
-    fun renderCircle(circle: Circle) = renderer.circle(circle.x, circle.y, circle.radius)
+    fun renderCircle(circle: Circle) = renderer.circle(circle.x, circle.y, circle.radius, 120)
 
     fun renderTouchArea(area: TouchArea) {
         renderer.color = Color.BLUE

@@ -3,6 +3,8 @@ package de.tfr.game.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import de.tfr.game.HotClack;
+import de.tfr.game.config.AndroidConfig;
+import de.tfr.game.config.ComputerConfig;
 
 /**
  * ## Run configuration setup:
@@ -17,6 +19,6 @@ public class DesktopLauncher {
 		config.height = 720;
 		config.samples = 3;
 		//config.fullscreen = true;
-		new LwjglApplication(new HotClack(), config);
+		new LwjglApplication(new HotClack(new ComputerConfig()), config);
 	}
 }

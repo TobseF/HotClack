@@ -2,6 +2,7 @@ package de.tfr.game.util.extensions
 
 import com.badlogic.gdx.graphics.OrthographicCamera
 import de.tfr.game.HotClack
+import de.tfr.game.config.GameConfig
 
 /**
  * @author Tobse4Git@gmail.com
@@ -12,6 +13,6 @@ import de.tfr.game.HotClack
  * [-viewportWidth/2, -(viewportHeight/2-1)] - [(viewportWidth/2-1), viewportHeight/2]
  * @param resolution with the viewport width and height
  */
-fun OrthographicCamera(resolution: HotClack.Resolution): OrthographicCamera {
-    return com.badlogic.gdx.graphics.OrthographicCamera(resolution.width, resolution.width)
+fun OrthographicCamera(resolution: GameConfig.Resolution): OrthographicCamera {
+    return com.badlogic.gdx.graphics.OrthographicCamera(resolution.width, resolution.height)
 }

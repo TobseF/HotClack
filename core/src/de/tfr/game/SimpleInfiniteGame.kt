@@ -1,5 +1,6 @@
 package de.tfr.game
 
+import com.badlogic.gdx.Gdx
 import de.tfr.game.Controller.ControlEvent.ControlEvenType.Clicked
 import de.tfr.game.Controller.ControlEvent.ControlEvenType.Selected
 import de.tfr.game.lib.Logger
@@ -27,6 +28,7 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
     private var resetPause: Timer = Timer(2f, this::reset, runOnStart = false, infinite = false)
     private val livesAtStart = 3
     private val sounds = SoundMachine()
+    private val vibrateTime = 32
     val scoreCounter = ScoreCounter()
 
     val skyNet: EnemyAI
@@ -70,7 +72,6 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
         colorChooser.color = color
     }
 
-
     private fun gogglePause() {
         watch.togglePause()
     }
@@ -102,6 +103,7 @@ class SimpleInfiniteGame(val field: GameField, val watch: StopWatch, private val
         } else {
             missedShot()
         }
+        Gdx.input.vibrate(vibrateTime)
     }
 
     private fun missedShot() {

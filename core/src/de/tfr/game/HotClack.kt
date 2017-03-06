@@ -11,21 +11,19 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import de.tfr.game.config.GameConfig
 import de.tfr.game.controller.GamePadController
 import de.tfr.game.lib.actor.Point2D
 import de.tfr.game.model.GameField
 import de.tfr.game.renderer.*
 import de.tfr.game.util.extensions.OrthographicCamera
 import de.tfr.game.util.extensions.glClearColor
+import de.tfr.game.util.extensions.FitViewport
 
 /**
  * @author Tobse4Git@gmail.com
  */
-class HotClack : ApplicationAdapter() {
-
-    data class Resolution(var width: Float, var height: Float) {
-        fun getCenter() = Point2D(width / 2, height / 2)
-    }
+class HotClack(val config: GameConfig) : ApplicationAdapter() {
 
     private lateinit var camera: OrthographicCamera
     private lateinit var renderer: GameFieldRenderer
@@ -41,7 +39,6 @@ class HotClack : ApplicationAdapter() {
     val rings = 13
     val segments = 8 //12
     private val gameField = GameField(rings, segments)
-    private val resolution = Resolution(1400f, 1400f)
     lateinit var batch: SpriteBatch
     private lateinit var stage: Stage
     private lateinit var shapeRenderer: ShapeRenderer
@@ -55,24 +52,24 @@ class HotClack : ApplicationAdapter() {
         timeDisplay = TimeDisplay()
         val colorChooser = ColorChooser()
         game = SimpleInfiniteGame(gameField, timeDisplay.watch, colorChooser)
-        camera = OrthographicCamera(resolution)
+        camera = OrthographicCamera(config.resolution)
         camera.setToOrtho(false)
 
-        viewport = FitViewport(resolution.width, resolution.height, camera)
-        val center = resolution.getCenter()
+        viewport = FitViewport(config.resolution, camera)
+        val center = config.resolution.getCenter()
         renderer = GameFieldRenderer(center, gameField, camera)
-        colorChooseRenderer = ColorChooserRenderer(Point2D(70f, 70f), colorChooser, newShapeRenderer(), camera)
+        colorChooseRenderer = ColorChooserRenderer(config.entityConf.colorChooserRenderer, colorChooser, newShapeRenderer(), camera)
 
         controller = Controller(center, renderer.getFieldRadius(), viewport, gameField.getNumberOfSegments(), colorChooseRenderer)
         controller.addTouchListener(game)
-        displayRenderer = DisplayRenderer(Point2D(resolution.width - 200f, resolution.height + 50), timeDisplay::getText, camera, SpriteBatch())
+        displayRenderer = DisplayRenderer(Point2D(config.resolution.width - 200f, config.resolution.height + 50), timeDisplay::getText, camera, SpriteBatch())
 
         displayRenderer.init()
-        scoreRenderer = DisplayRenderer(Point2D(150f, resolution.height + 50), game.scoreCounter::getText, camera, SpriteBatch())
+        scoreRenderer = DisplayRenderer(Point2D(150f, config.resolution.height + 50), game.scoreCounter::getText, camera, SpriteBatch())
         scoreRenderer.init()
         controllerRenderer = ControllerRenderer(camera)
         gamepad = GamePadController(gameField.getNumberOfSegments(), game)
-        liveRenderer = LiveRenderer(Point2D(60f, resolution.height - 150), game::lives, newShapeRenderer(), camera)
+        liveRenderer = LiveRenderer(Point2D(60f, config.resolution.height - 150), game::lives, newShapeRenderer(), camera)
     }
 
     fun newShapeRenderer(): ShapeRenderer {
